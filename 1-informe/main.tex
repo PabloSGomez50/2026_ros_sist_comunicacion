@@ -1,0 +1,81 @@
+% ======================================================================
+% Plantilla de Informe Técnico / Documento Académico - UTN FRA / LSE
+% ======================================================================
+\documentclass[DOC]{UTNLSE}
+
+% Rutas para búsqueda de figuras y gráficos
+\graphicspath{{images/}{./}}
+
+% ----------------------------------------------------------------------
+% METADATOS DEL DOCUMENTO (Opción [RT])
+% ----------------------------------------------------------------------
+% \titleES{Título del Informe o Trabajo Práctico}
+% \subtitleES{Subtítulo o Descripción Breve} % Opcional
+% \titleEN{English Title of the Report or Technical Paper}
+% \subtitleEN{Optional English Subtitle}
+
+% % Autores: \addauthor{Nombre}{Apellido}{Institución / Cátedra}{ORCID o Enlace}[email]
+% \addauthor{Nombre}{Apellido}{Universidad Tecnológica Nacional - FRA}{https://orcid.org/0000-0000-0000-0000}[autor@frba.utn.edu.ar]
+
+% % Resumen / Abstract y Palabras Clave
+% \resumenES{Breve resumen del trabajo (100 a 200 palabras). Incluir objetivos, metodología aplicada, resultados destacados y conclusiones principales.}
+% \keywordsES{palabra clave 1; palabra clave 2; palabra clave 3}
+
+% \resumenEN{Brief summary of the document in English covering objectives, methodology, main findings, and conclusions.}
+% \keywordsEN{keyword 1; keyword 2; keyword 3}
+
+% ----------------------------------------------------------------------
+% METADATOS DEL DOCUMENTO (Opción [DOC] - Descomentar si se usa \documentclass[DOC]{UTNLSE})
+% ----------------------------------------------------------------------
+\title{ROS 2 - Sistema Operativo de Robótica}
+\subtitle{Proyecto de investigación - Sistemas de Comunicaciones}
+\addauthor{Pablo Sebastian}{Gomez}
+\addauthor{Irina}{Terebi}
+\addauthor{Matias}{Peña}
+\course{Sistemas de Comunicaciones}
+\coverimage{logo-universidad2.png}
+% \LSE
+
+% ======================================================================
+% CUERPO DEL DOCUMENTO
+% ======================================================================
+\begin{document}
+
+\section*{Extracto}
+El presente informe tiene como objetivo presentar un análisis detallado del Sistema Operativo de Robótica (ROS 2), explorando sus características, arquitectura y aplicaciones en el ámbito de la robótica. Se abordarán aspectos clave como la comunicación entre nodos, la gestión de sensores y actuadores, y la integración con hardware específico. Además, se discutirán las ventajas y desafíos asociados con el uso de ROS 2 en proyectos de investigación y desarrollo.
+
+\section{Capitulo 1}
+\input{cap-1.tex}
+
+\section{Capitulo 2}
+\input{cap-2.tex}
+
+\section{Capitulo 3}
+\input{cap-3.tex}
+
+\section{Capitulo 4}
+\subsection{Conclusiones}
+
+Al finalizar el ...
+
+\subsection{Glosario de términos}
+Terminología utilizada en el informe:
+\begin{itemize}
+    \item \textbf{ROS 2:} Robot Operating System 2, un sistema operativo de código abierto para la robótica.
+    \item \textbf{Nodo:} Una unidad de ejecución en ROS 2 que realiza tareas específicas y se comunica con otros nodos.
+\end{itemize}
+
+% ======================================================================
+% BIBLIOGRAFÍA EMBEBIDA
+% ======================================================================
+\begin{thebibliography}{99}
+
+\bibitem{ref_ejemplo1}
+A. S. Sedra y K. C. Smith, \emph{Microelectronic Circuits}, 7ma ed. Oxford University Press, 2015.
+
+\bibitem{datasheet_ejemplo}
+Texas Instruments, \emph{LM317 3-Terminal Adjustable Regulator}, Datasheet SLVS044X, 2020. [Disponible en carpeta \texttt{references/}].
+
+\end{thebibliography}
+
+\end{document}
