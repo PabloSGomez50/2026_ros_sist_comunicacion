@@ -69,16 +69,24 @@ hardware dedicado.
 
 Las fuentes consultadas se agrupan en las siguientes categorías:
 \begin{itemize}
-    \item \textbf{Documentación oficial de ROS:} documentación de ROS~2 y
-    propuestas de mejora (REP, \textit{ROS Enhancement Proposals}), en
-    particular las que definen las plataformas soportadas por cada
-    distribución.
+    \item \textbf{Documentación oficial de ROS:}
+    \href{https://docs.ros.org}{documentación de ROS~2} y
+    \href{https://www.ros.org/reps/rep-0000.html}{propuestas de mejora} (REP,
+    \textit{ROS Enhancement Proposals}), en particular la
+    \href{https://www.ros.org/reps/rep-2000.html}{REP~2000}, que define las
+    plataformas soportadas por cada distribución.
     \item \textbf{Especificaciones de estándares:} especificaciones de la OMG
-    (\textit{Object Management Group}) para DDS y DDSI-RTPS, y documentos RFC
-    de la IETF para los protocolos UDP e IP.
+    (\textit{Object Management Group}) para
+    \href{https://www.omg.org/spec/DDS/}{DDS} y
+    \href{https://www.omg.org/spec/DDSI-RTPS/}{DDSI-RTPS}, y documentos RFC de
+    la IETF para los protocolos
+    \href{https://www.rfc-editor.org/rfc/rfc768}{UDP (RFC~768)} e
+    \href{https://www.rfc-editor.org/rfc/rfc791}{IP (RFC~791)}.
     \item \textbf{Documentación de fabricantes:} documentación técnica de las
-    implementaciones Eclipse Cyclone DDS, eProsima Fast DDS y RTI Connext DDS,
-    y del proyecto micro-ROS.
+    implementaciones \href{https://cyclonedds.io}{Eclipse Cyclone DDS},
+    \href{https://fast-dds.docs.eprosima.com}{eProsima Fast DDS} y
+    \href{https://community.rti.com/documentation}{RTI Connext DDS}, y del
+    proyecto \href{https://micro.ros.org}{micro-ROS}.
     \item \textbf{Publicaciones académicas:} artículos científicos sobre el
     diseño, la arquitectura y el desempeño de ROS~2 y DDS.
 \end{itemize}
@@ -90,6 +98,19 @@ El análisis se delimita según los siguientes criterios:
     (\textit{Internet of Things}).
     \item \textbf{Objeto de estudio:} el sistema de comunicaciones de ROS~1 y
     ROS~2, sin abarcar el resto de las herramientas del ecosistema.
+    \item \textbf{Capas analizadas:} \textit{middleware} (RMW y DDS), protocolo
+    de interoperabilidad (RTPS) y transporte (UDP/IP).
+    \item \textbf{Plataformas:} distribuciones de ROS sobre Ubuntu Linux, RTOS y
+    microcontroladores a través de micro-ROS.
+\end{itemize}
 
 \subsection{Universo Espacio Temporal}
-Los años en los cuales se tuvo presente la información para hacer el trabajo.
+En el plano temporal, el estudio abarca la evolución de ROS desde el inicio de
+su desarrollo en 2007 hasta las distribuciones vigentes de ROS~2 en 2026. Se
+pone especial énfasis en el período 2021--2026, en el que ROS~2 se consolida
+como la plataforma de referencia y ROS~1 alcanza el fin de su soporte con la
+distribución Noetic en 2025.
+
+En el plano espacial, el análisis tiene alcance global, dado que ROS y los
+estándares asociados son desarrollados y adoptados a nivel internacional. Se
+incorporan referencias al contexto argentino cuando resultan pertinentes.
