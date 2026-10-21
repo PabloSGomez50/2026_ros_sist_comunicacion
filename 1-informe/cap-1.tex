@@ -27,8 +27,38 @@ las implementaciones de \textit{middleware} disponibles.
 
 \subsection{Objetivo y alcance}
 
-El objetivo principal del trabajo es investigar el estado del arte, evaluando la
-metodología y los objetivos específicos.
+El objetivo general del trabajo es analizar el estado del arte de ROS, con foco
+en la evolución de su arquitectura de comunicaciones desde ROS~1 hasta ROS~2 y
+en los estándares y protocolos que la sustentan.
+
+Para ello se plantean los siguientes objetivos específicos:
+\begin{itemize}
+    \item Describir los conceptos arquitectónicos de ROS (nodos y \textit{topics})
+    y sus patrones de comunicación (\textit{services} y \textit{actions}).
+    \item Analizar la arquitectura híbrida de ROS~1 y las limitaciones derivadas
+    de su dependencia del nodo maestro (\textit{roscore}) como punto único de
+    falla.
+    \item Describir el modelo descentralizado de ROS~2 y la pila de
+    comunicaciones DDS, RTPS y UDP/IP.
+    \item Analizar los mecanismos de calidad de servicio (QoS) y su
+    configuración.
+    \item Relevar el soporte de ROS~2 para sistemas operativos de tiempo real
+    (RTOS) y microcontroladores mediante micro-ROS.
+    \item Describir la capa de abstracción de \textit{middleware} (RMW) y
+    comparar sus principales implementaciones: Eclipse Cyclone DDS, eProsima
+    Fast DDS y RTI Connext DDS.
+    \item Presentar el esquema de distribuciones de ROS y su vinculación con
+    las versiones de Ubuntu.
+    \item Realizar una demostración práctica sobre hardware dedicado (Raspberry
+    Pi) que ilustre el intercambio de mensajes entre nodos de ROS~2 a través de
+    la red.
+\end{itemize}
+
+En cuanto al alcance, el estudio se centra en la capa de \textit{middleware} y
+transporte de datos, complementado con una prueba de concepto de carácter
+demostrativo. No se abordan en profundidad los algoritmos de
+percepción, planificación o control, ni el desarrollo de aplicaciones
+robóticas específicas.
 
 \subsection{Metodología y Fuentes de investigación}
 La investigación si el trabajo de investigación es del tipo descriptivo y posee
