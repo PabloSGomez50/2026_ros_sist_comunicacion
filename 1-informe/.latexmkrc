@@ -1,5 +1,7 @@
 # Configuration file for latexmk
 $pdf_mode = 1;
+# Compilar solo el documento principal (los cap-*.tex se incluyen con \input)
+@default_files = ('main.tex');
 $out_dir = 'build';
 $pdflatex = 'pdflatex -synctex=1 -interaction=nonstopmode %O %S';
 $xelatex = 'xelatex -synctex=1 -interaction=nonstopmode %O %S';
