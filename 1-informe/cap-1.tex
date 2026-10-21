@@ -1,5 +1,30 @@
 \subsection{Introducción del trabajo}
 
+El presente trabajo de investigación se desarrolla en el marco de la asignatura
+Sistemas de Comunicaciones de la Universidad Tecnológica Nacional. Su propósito
+es analizar ROS (\textit{Robot Operating System}) desde la perspectiva de los
+sistemas de comunicaciones, considerando los mecanismos de intercambio de
+información que emplea y los estándares sobre los que se sustenta.
+
+Los sistemas robóticos actuales constituyen, en esencia, sistemas distribuidos.
+Sensores, actuadores, unidades de procesamiento y estaciones de supervisión
+operan como procesos independientes, frecuentemente alojados en distintos
+equipos, que deben intercambiar datos de manera continua a través de una red.
+En este contexto, la arquitectura de comunicaciones deja de ser un aspecto
+secundario y pasa a condicionar directamente la latencia, la confiabilidad y la
+escalabilidad del sistema en su conjunto.
+
+ROS se ha consolidado como el \textit{framework} de referencia para el
+desarrollo de software robótico, tanto en el ámbito académico como en el
+industrial. Su evolución resulta particularmente relevante para el estudio de
+las comunicaciones: la primera versión (ROS~1) se basa en una arquitectura
+híbrida que depende de un nodo maestro central, mientras que ROS~2 adopta un
+esquema descentralizado sustentado en el estándar DDS (\textit{Data
+Distribution Service}), el protocolo RTPS (\textit{Real-Time Publish-Subscribe})
+y el transporte sobre UDP/IP. Este trabajo aborda dicha transición, analizando
+sus fundamentos técnicos, la configuración de la calidad de servicio (QoS) y
+las implementaciones de \textit{middleware} disponibles.
+
 \subsection{Objetivo y alcance}
 
 El objetivo principal del trabajo es investigar el estado del arte, evaluando la
