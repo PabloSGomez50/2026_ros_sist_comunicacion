@@ -68,6 +68,11 @@ Terminología utilizada en el informe:
 % ======================================================================
 % BIBLIOGRAFÍA EMBEBIDA
 % ======================================================================
+\subsection{Referencias}
+% thebibliography crea su propio \section*{Referencias}; se anula dentro
+% del grupo para que quede como subsección 4.3, igual que la plantilla.
+\begingroup
+\renewcommand{\section}[2]{}
 \begin{thebibliography}{99}
 
 \bibitem{ref_ejemplo1}
@@ -77,5 +82,6 @@ A. S. Sedra y K. C. Smith, \emph{Microelectronic Circuits}, 7ma ed. Oxford Unive
 Texas Instruments, \emph{LM317 3-Terminal Adjustable Regulator}, Datasheet SLVS044X, 2020. [Disponible en carpeta \texttt{references/}].
 
 \end{thebibliography}
+\endgroup
 
 \end{document}
