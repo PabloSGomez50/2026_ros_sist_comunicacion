@@ -1,10 +1,102 @@
 \subsection{Introducción del tema}
 
-Introducción teórica del tema
+ROS (\textit{Robot Operating System}) es un \textit{framework} de código
+abierto para el desarrollo de software robótico. A pesar de su nombre, no
+constituye un sistema operativo en sentido estricto: se ejecuta sobre un
+sistema operativo anfitrión, principalmente Linux, y provee una capa de
+\textit{middleware} junto con un conjunto de bibliotecas y herramientas. Su
+función central es permitir que los distintos componentes de un robot se
+desarrollen como procesos independientes y se comuniquen entre sí mediante
+interfaces estandarizadas.
+
+El proyecto se originó en 2007 en el Laboratorio de Inteligencia Artificial de
+la Universidad de Stanford y continuó su desarrollo en Willow Garage.
+Actualmente es mantenido por la Open Source Robotics Foundation (OSRF) junto a
+una amplia comunidad internacional.
+
+Las principales razones de su adopción son:
+\begin{itemize}
+    \item \textbf{Modularidad:} cada función del robot se implementa como un
+    componente independiente, lo que facilita el desarrollo en paralelo y el
+    mantenimiento.
+    \item \textbf{Reutilización:} existe un amplio repositorio de paquetes para
+    navegación, percepción, manipulación y controladores de hardware.
+    \item \textbf{Abstracción de hardware:} los componentes se comunican a
+    través de interfaces definidas, independientemente del fabricante del
+    sensor o actuador.
+    \item \textbf{Herramientas:} incluye utilidades de visualización, registro,
+    simulación y depuración.
+    \item \textbf{Licenciamiento abierto:} se distribuye bajo licencias
+    permisivas (BSD y Apache~2.0), lo que habilita su uso académico e
+    industrial.
+\end{itemize}
+
+ROS~1 fue concebido como una plataforma de investigación, orientada a un único
+robot operando en una red local confiable. A medida que su uso se extendió a
+entornos industriales, sistemas multi-robot y redes inalámbricas, sus
+limitaciones de diseño se hicieron evidentes. En respuesta, se desarrolló
+ROS~2, rediseñado desde su base sobre estándares industriales de
+comunicaciones.
+
+La diferencia fundamental entre ambas versiones reside en su arquitectura de
+comunicaciones. ROS~1 emplea un esquema híbrido en el que un nodo maestro
+central (\textit{roscore}) gestiona el descubrimiento de los participantes,
+mientras que el intercambio de datos se realiza mediante protocolos propios
+(TCPROS y UDPROS). Este diseño introduce un punto único de falla y no ofrece
+mecanismos para ajustar el comportamiento de la comunicación según las
+condiciones de la red.
+
+ROS~2, en cambio, adopta una arquitectura descentralizada basada en el
+estándar DDS (\textit{Data Distribution Service}) y su protocolo de
+interoperabilidad RTPS. Esta elección elimina la dependencia de un nodo
+central y habilita la configuración de políticas de calidad de servicio (QoS),
+el soporte para sistemas operativos de tiempo real y la integración de
+microcontroladores mediante micro-ROS. Asimismo, incorpora mecanismos de
+seguridad basados en la especificación DDS-Security, ausentes en ROS~1.
+
+Con la finalización del soporte de ROS~1 en 2025, ROS~2 se ha consolidado como
+la plataforma vigente para el desarrollo de nuevos sistemas robóticos.
+
+Los aspectos técnicos de cada arquitectura se desarrollan en detalle en el
+Capítulo~3.
 
 \subsection{Descripción del contexto del tema}
 
-Como, cuando y donde se utiliza el tema de análisis
+ROS se utiliza como capa de integración en sistemas robóticos de diversa
+complejidad, desde plataformas educativas y de investigación hasta vehículos
+autónomos y robots industriales. En estos sistemas, los componentes de
+software suelen distribuirse entre varios equipos: computadoras embarcadas en
+el robot, microcontroladores asociados a sensores y actuadores, y estaciones de
+supervisión remotas. ROS actúa como el \textit{middleware} que permite que
+todos estos componentes intercambien información de forma transparente, sin
+importar en qué equipo se ejecuten.
+
+El software de ROS se publica en \textbf{distribuciones}: conjuntos versionados
+de paquetes que se prueban y se mantienen en conjunto. Desde 2017, ROS~2 lanza
+una nueva distribución cada año, el 23 de mayo. Las distribuciones de los años
+pares son de soporte extendido (LTS, \textit{Long Term Support}) y reciben
+actualizaciones durante cinco años, mientras que las de los años impares tienen
+un ciclo de soporte de aproximadamente un año y medio. En paralelo existe
+Rolling, una distribución de desarrollo continuo en la que se incorporan los
+cambios antes de su inclusión en una versión estable.
+
+Cada distribución está vinculada a una versión LTS específica de Ubuntu, que
+constituye su plataforma principal de soporte (\textit{Tier~1}), según lo
+establecido en la REP~2000. Este vínculo se debe a que los paquetes binarios de
+ROS se compilan y se prueban contra las bibliotecas del sistema de esa versión
+de Ubuntu. En consecuencia, la elección de la distribución de ROS determina la
+versión del sistema operativo a utilizar. Las distribuciones LTS más recientes
+y su correspondencia son:
+\begin{itemize}
+    \item \textbf{ROS~1 Noetic Ninjemys} (2020): Ubuntu 20.04. Última
+    distribución de ROS~1, con fin de soporte en mayo de 2025.
+    \item \textbf{ROS~2 Humble Hawksbill} (2022): Ubuntu 22.04.
+    \item \textbf{ROS~2 Jazzy Jalisco} (2024): Ubuntu 24.04.
+    \item \textbf{ROS~2 Lyrical Luth} (2026): Ubuntu 26.04.
+\end{itemize}
+
+Además de Ubuntu, las distribuciones de ROS~2 ofrecen distintos niveles de
+soporte para otras plataformas, como Windows y Red Hat Enterprise Linux.
 
 \subsection{Mercado y Segmentación del tema}
 

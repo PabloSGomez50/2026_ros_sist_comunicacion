@@ -8,7 +8,7 @@ $xelatex = 'xelatex -synctex=1 -interaction=nonstopmode %O %S';
 $lualatex = 'lualatex -synctex=1 -interaction=nonstopmode %O %S';
 
 # Visor predeterminado para vista previa (-pvc)
-$pdf_previewer = 'evince %S 2>/dev/null &';
+$pdf_previewer = 'xdg-open %S 2>/dev/null &';
 
 # Copiar el PDF resultante al directorio raíz del informe para acceso directo
 $success_cmd = 'cp %D . 2>/dev/null || true';

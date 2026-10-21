@@ -28,11 +28,8 @@ latexmk
 
 ```bash
 cd 1-informe
-latexmk -pvc
+xdg-open main.pdf
 ```
-
-- Abre el PDF y lo vuelve a compilar cada vez que se guarda un `.tex`.
-- Para salir: `Ctrl+C`.
 
 ### 4. Limpiar archivos temporales
 
