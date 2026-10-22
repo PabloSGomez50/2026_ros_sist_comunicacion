@@ -1,5 +1,10 @@
 # 2026_ros_sist_comunicacion
 
+> [!WARNING]
+> # 🚧 TBD 🚧
+> - [ ] **Probar los links de las URLs** (hipervínculos del 1.3 y referencias del 4.3)
+> - [ ] **Chequeo general** del informe
+
 ## Informe (LaTeX)
 
 El informe está en `1-informe/`. El archivo principal es `main.tex` y los capítulos están en `cap-*.tex`.
