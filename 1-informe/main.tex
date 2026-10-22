@@ -42,18 +42,18 @@
 \begin{document}
 
 \section*{Extracto}
-El presente informe tiene como objetivo presentar un análisis detallado del Sistema Operativo de Robótica (ROS 2), explorando sus características, arquitectura y aplicaciones en el ámbito de la robótica. Se abordarán aspectos clave como la comunicación entre nodos, la gestión de sensores y actuadores, y la integración con hardware específico. Además, se discutirán las ventajas y desafíos asociados con el uso de ROS 2 en proyectos de investigación y desarrollo.
+El presente informe analiza ROS (\textit{Robot Operating System}) desde la perspectiva de los sistemas de comunicaciones. Se describen sus conceptos arquitectónicos y patrones de comunicación, y se examina la transición desde la arquitectura híbrida de ROS~1, dependiente de un proceso maestro central, hacia el modelo descentralizado de ROS~2, sustentado en el estándar DDS y en el protocolo RTPS. Se analizan, asimismo, los mecanismos de calidad de servicio (QoS), la capa de abstracción de \textit{middleware} (RMW) y sus principales implementaciones, el soporte para sistemas de tiempo real y microcontroladores, y el esquema de distribuciones del proyecto. El estudio se complementa con una prueba de concepto sobre hardware dedicado.
 
-\section{Capitulo 1}
+\section{Capítulo 1}
 \input{cap-1.tex}
 
-\section{Capitulo 2}
+\section{Capítulo 2}
 \input{cap-2.tex}
 
-\section{Capitulo 3}
+\section{Capítulo 3}
 \input{cap-3.tex}
 
-\section{Capitulo 4}
+\section{Capítulo 4}
 \subsection{Conclusiones}
 
 Al finalizar el ...
@@ -61,8 +61,8 @@ Al finalizar el ...
 \subsection{Glosario de términos}
 Terminología utilizada en el informe:
 \begin{itemize}
-    \item \textbf{ROS 2:} Robot Operating System 2, un sistema operativo de código abierto para la robótica.
-    \item \textbf{Nodo:} Una unidad de ejecución en ROS 2 que realiza tareas específicas y se comunica con otros nodos.
+    \item \textbf{ROS 2:} \textit{Robot Operating System 2}. Segunda generación de ROS, \textit{framework} de código abierto para el desarrollo de software robótico.
+    \item \textbf{Nodo:} Participante del grafo de ROS que realiza una función lógica específica y se comunica con otros nodos.
 \end{itemize}
 
 % ======================================================================

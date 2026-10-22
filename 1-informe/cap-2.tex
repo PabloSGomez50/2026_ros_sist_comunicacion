@@ -1,59 +1,70 @@
 \subsection{Introducción del tema}
 
 ROS (\textit{Robot Operating System}) es un \textit{framework} de código
-abierto para el desarrollo de software robótico. A pesar de su nombre, no
+abierto para el desarrollo de software robótico. A pesar de su denominación, no
 constituye un sistema operativo en sentido estricto: se ejecuta sobre un
-sistema operativo anfitrión, principalmente Linux, y provee una capa de
+sistema operativo anfitrión, principalmente distribuciones de Linux, y provee una capa de
 \textit{middleware} junto con un conjunto de bibliotecas y herramientas. Su
 función central es permitir que los distintos componentes de un robot se
 desarrollen como procesos independientes y se comuniquen entre sí mediante
 interfaces estandarizadas.
 
 El proyecto se originó en 2007 en el Laboratorio de Inteligencia Artificial de
-la Universidad de Stanford y continuó su desarrollo en Willow Garage.
+la Universidad de Stanford, en el marco del proyecto STAIR (\textit{STanford
+Artificial Intelligence Robot}), y continuó su desarrollo en la empresa Willow
+Garage.
 Actualmente está a cargo de la Open Source Robotics Foundation (OSRF) y, desde
 2024, su gobernanza técnica es ejercida por la Open Source Robotics Alliance
 (OSRA), con la participación de una amplia comunidad internacional.
 
-Las principales razones de su adopción son:
+Los principales factores que explican su adopción son:
 \begin{itemize}
     \item \textbf{Modularidad:} cada función del robot se implementa como un
     componente independiente, lo que facilita el desarrollo en paralelo y el
     mantenimiento.
-    \item \textbf{Reutilización:} existe un amplio repositorio de paquetes para
-    navegación, percepción, manipulación y controladores de hardware.
+    \item \textbf{Reutilización:} el ecosistema dispone de un amplio conjunto
+    de paquetes para navegación, percepción, manipulación y controladores de
+    hardware.
     \item \textbf{Abstracción de hardware:} los componentes se comunican a
-    través de interfaces definidas, independientemente del fabricante del
+    través de interfaces normalizadas, con independencia del fabricante del
     sensor o actuador.
-    \item \textbf{Herramientas:} incluye utilidades de visualización, registro,
-    simulación y depuración.
-    \item \textbf{Licenciamiento abierto:} se distribuye bajo licencias
-    permisivas: BSD en el núcleo de ROS~1 y Apache~2.0 en el de ROS~2, lo que habilita su uso académico e
-    industrial.
+    \item \textbf{Herramientas de desarrollo:} provee utilidades de
+    visualización, registro de datos, simulación y depuración.
+    \item \textbf{Licenciamiento abierto:} el núcleo de ROS~1 se distribuye
+    bajo licencia BSD y el de ROS~2 bajo licencia Apache~2.0. Ambas son
+    licencias permisivas que habilitan su uso académico y comercial.
 \end{itemize}
 
-ROS~1 fue concebido como una plataforma de investigación, orientada a un único
-robot operando en una red local confiable. A medida que su uso se extendió a
-entornos industriales, sistemas multi-robot y redes inalámbricas, sus
-limitaciones de diseño se hicieron evidentes. En respuesta, se desarrolló
+El diseño de ROS~1 se orientó al caso de uso del robot PR2 de Willow Garage,
+cuyas características determinantes eran: un único robot, recursos de cómputo
+de clase estación de trabajo, ausencia de requisitos de tiempo real,
+conectividad de red de alta calidad y aplicaciones predominantemente de
+investigación. A medida que su uso se extendió a entornos industriales,
+sistemas multirrobot y redes inalámbricas de menor confiabilidad, estas
+hipótesis de diseño se tornaron restrictivas. En respuesta, se desarrolló
 ROS~2, rediseñado desde su base sobre estándares industriales de
 comunicaciones.
 
 La diferencia fundamental entre ambas versiones reside en su arquitectura de
-comunicaciones. ROS~1 emplea un esquema híbrido en el que un nodo maestro
-central (\textit{roscore}) gestiona el descubrimiento de los participantes,
-mientras que el intercambio de datos se realiza mediante protocolos propios
-(TCPROS y UDPROS). Este diseño introduce un punto único de falla y no ofrece
-mecanismos para ajustar el comportamiento de la comunicación según las
-condiciones de la red.
+comunicaciones. ROS~1 emplea un esquema híbrido: un proceso maestro central
+(ROS Master, iniciado mediante el comando \texttt{roscore}) actúa como
+servicio de registro y resolución de nombres a través de XML-RPC, mientras que
+el intercambio de datos se realiza directamente entre nodos mediante
+protocolos propios (TCPROS y UDPROS). En consecuencia, el proceso maestro
+constituye un punto único de falla: sin él, los nodos no pueden localizarse
+entre sí ni establecer nuevas comunicaciones. Asimismo, ROS~1 ofrece opciones
+limitadas para ajustar el comportamiento de la comunicación, sin un modelo de
+calidad de servicio comparable al de DDS.
 
 ROS~2, en cambio, adopta una arquitectura descentralizada basada en el
 estándar DDS (\textit{Data Distribution Service}) y su protocolo de
-interoperabilidad RTPS. Esta elección elimina la dependencia de un nodo
-central y habilita la configuración de políticas de calidad de servicio (QoS),
-el soporte para sistemas operativos de tiempo real y la integración de
-microcontroladores mediante micro-ROS. Asimismo, incorpora mecanismos de
-seguridad basados en la especificación DDS-Security, ausentes en ROS~1.
+interoperabilidad RTPS. Esta elección elimina la dependencia de un proceso
+central, dado que el descubrimiento de participantes se realiza de forma
+distribuida, y habilita la configuración de políticas de calidad de servicio
+(QoS). Su diseño contempla, además, la ejecución en sistemas con requisitos de
+tiempo real y la integración de microcontroladores mediante micro-ROS.
+Asimismo, incorpora mecanismos de seguridad basados en la especificación
+DDS-Security, sin equivalente nativo en ROS~1.
 
 Con la finalización del soporte de ROS~1 en 2025, ROS~2 se ha consolidado como
 la plataforma vigente para el desarrollo de nuevos sistemas robóticos.
@@ -63,14 +74,14 @@ Capítulo~3.
 
 \subsection{Descripción del contexto del tema}
 
-ROS se utiliza como capa de integración en sistemas robóticos de diversa
+ROS se emplea como capa de integración en sistemas robóticos de diversa
 complejidad, desde plataformas educativas y de investigación hasta vehículos
 autónomos y robots industriales. En estos sistemas, los componentes de
 software suelen distribuirse entre varios equipos: computadoras embarcadas en
 el robot, microcontroladores asociados a sensores y actuadores, y estaciones de
-supervisión remotas. ROS actúa como el \textit{middleware} que permite que
-todos estos componentes intercambien información de forma transparente, sin
-importar en qué equipo se ejecuten.
+supervisión remotas. ROS actúa como el \textit{middleware} que permite a
+estos componentes intercambiar información de forma transparente respecto de
+su ubicación física en la red.
 
 El software de ROS se publica en \textbf{distribuciones}: conjuntos versionados
 de paquetes que se prueban y se mantienen en conjunto. La primera distribución
@@ -143,7 +154,7 @@ desarrollo incipiente, con mayor potencial en sectores como la agroindustria,
 la automatización de procesos industriales y la logística.
 
 \subsection{Legislación del tema}
-No existe legislación que regule específicamente a ROS ni a los
+No se ha identificado legislación que regule específicamente a ROS ni a los
 \textit{middleware} de comunicaciones robóticas. Sin embargo, los sistemas
 construidos sobre ROS quedan alcanzados por la normativa general aplicable a
 máquinas, productos con componentes digitales y tratamiento de datos. Las
@@ -169,7 +180,8 @@ referencia regulatoria:
     inteligencia artificial, según su nivel de riesgo.
 \end{itemize}
 
-En Argentina no existe una legislación específica sobre robótica. Los
+En Argentina no se ha identificado legislación sancionada que regule
+específicamente la robótica. Los
 sistemas robóticos quedan alcanzados por normas de carácter general:
 \begin{itemize}
     \item \textbf{Ley 19.587 de Higiene y Seguridad en el Trabajo} (1972) y su

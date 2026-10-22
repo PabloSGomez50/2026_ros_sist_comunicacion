@@ -1,7 +1,72 @@
 \subsection{Fundamentos técnicos}
 
-Fundamentos técnicos del trabajo, desarrollos teóricos, información de
-arquitectura, esquemas, etc.
+\subsubsection{Conceptos arquitectónicos: nodos y \textit{topics}}
+
+Un sistema basado en ROS se organiza como un grafo de procesos que se
+comunican entre sí, denominado grafo de ROS. La unidad básica de este grafo es
+el \textbf{nodo}: un participante que realiza una función lógica específica,
+como leer un sensor, estimar la posición del robot o controlar un motor. Cada
+nodo utiliza una biblioteca cliente para comunicarse con el resto del sistema:
+\texttt{roscpp} y \texttt{rospy} en ROS~1, y \texttt{rclcpp} y \texttt{rclpy}
+en ROS~2, para los lenguajes C++ y Python respectivamente. Los nodos pueden
+comunicarse con otros nodos alojados en el mismo proceso, en otro proceso o en
+otro equipo de la red. Las conexiones entre ellos se establecen mediante un
+mecanismo de descubrimiento, cuya implementación difiere entre ROS~1 y ROS~2,
+según se detalla más adelante.
+
+El mecanismo de comunicación fundamental es el \textbf{\textit{topic}}: un canal
+con nombre sobre el que opera un modelo de publicación/suscripción. Los nodos
+productores de datos (\textit{publishers}) publican mensajes en un
+\textit{topic}, y todos los nodos suscritos a él (\textit{subscribers}) los
+reciben. Un mismo \textit{topic} admite cero o más publicadores y cero o más
+suscriptores, lo que configura un esquema de comunicación de muchos a muchos.
+Este modelo presenta dos propiedades relevantes:
+\begin{itemize}
+    \item \textbf{Anonimato:} el suscriptor no necesita conocer qué nodo
+    originó el dato. Esto permite reemplazar, agregar o quitar nodos sin
+    modificar el resto del sistema.
+    \item \textbf{Tipado fuerte:} cada \textit{topic} transporta un único tipo
+    de mensaje, definido en un archivo \texttt{.msg}. A partir de esta
+    definición, las herramientas de ROS generan automáticamente el código para
+    los distintos lenguajes soportados.
+\end{itemize}
+
+Los \textit{topics} resultan adecuados para flujos de datos continuos, como
+las lecturas de sensores o el estado del robot, donde no se espera una
+respuesta por parte del receptor.
+
+\subsubsection{Patrones de comunicación: \textit{services} y \textit{actions}}
+
+Además de los \textit{topics}, ROS ofrece dos patrones de comunicación
+orientados a la interacción entre un cliente y un servidor.
+
+Un \textbf{\textit{service}} implementa una llamada a procedimiento remoto
+(RPC, \textit{Remote Procedure Call}) bajo un esquema de solicitud y
+respuesta. Un nodo cliente envía una solicitud, el nodo servidor realiza el
+procesamiento correspondiente y devuelve un resultado. Su interfaz se define en
+un archivo \texttt{.srv}, compuesto por un mensaje de solicitud y uno de
+respuesta. Cada nombre de \textit{service} debe tener un único servidor, aunque
+puede ser utilizado por cualquier cantidad de clientes. Dado que el cliente
+generalmente queda a la espera del resultado, los \textit{services} están
+pensados para operaciones de ejecución breve, como consultar un estado o
+modificar una configuración.
+
+Una \textbf{\textit{action}} es una llamada a procedimiento remoto de larga
+duración, que incorpora la posibilidad de recibir retroalimentación durante la
+ejecución y de cancelar el objetivo antes de su finalización. Un ejemplo típico
+es la orden de desplazar el robot hasta una posición determinada: la tarea
+puede demorar segundos o minutos, durante los cuales el servidor informa el
+progreso y el cliente puede cancelarla. Su interfaz se define en un archivo
+\texttt{.action}, compuesto por tres mensajes: objetivo (\textit{goal}),
+resultado (\textit{result}) y retroalimentación (\textit{feedback}).
+
+En ROS~2, las \textit{actions} no constituyen un mecanismo de transporte
+independiente, sino que se construyen sobre los dos patrones anteriores: cada
+\textit{action} se compone internamente de tres \textit{services} (envío del
+objetivo, cancelación y obtención del resultado) y dos \textit{topics}
+(retroalimentación y estado). En ROS~1, en cambio, las \textit{actions} no
+formaban parte del núcleo y se implementaban mediante una biblioteca
+independiente denominada \texttt{actionlib}.
 
 \subsection{Ámbitos de aplicación}
 

@@ -14,14 +14,14 @@ En este contexto, la arquitectura de comunicaciones deja de ser un aspecto
 secundario y pasa a condicionar directamente la latencia, la confiabilidad y la
 escalabilidad del sistema en su conjunto.
 
-ROS se ha consolidado como el \textit{framework} de referencia para el
-desarrollo de software robótico, tanto en el ámbito académico como en el
-industrial. Su evolución resulta particularmente relevante para el estudio de
+ROS constituye uno de los \textit{frameworks} de código abierto más difundidos
+para el desarrollo de software robótico, tanto en el ámbito académico como en
+el industrial. Su evolución resulta particularmente relevante para el estudio de
 las comunicaciones: la primera versión (ROS~1) se basa en una arquitectura
-híbrida que depende de un nodo maestro central, mientras que ROS~2 adopta un
+híbrida que depende de un proceso maestro central, mientras que ROS~2 adopta un
 esquema descentralizado sustentado en el estándar DDS (\textit{Data
-Distribution Service}), el protocolo RTPS (\textit{Real-Time Publish-Subscribe})
-y el transporte sobre UDP/IP. Este trabajo aborda dicha transición, analizando
+Distribution Service}) y en el protocolo RTPS (\textit{Real-Time
+Publish-Subscribe}), que opera habitualmente sobre UDP/IP. Este trabajo aborda dicha transición, analizando
 sus fundamentos técnicos, la configuración de la calidad de servicio (QoS) y
 las implementaciones de \textit{middleware} disponibles.
 
@@ -36,14 +36,14 @@ Para ello se plantean los siguientes objetivos específicos:
     \item Describir los conceptos arquitectónicos de ROS (nodos y \textit{topics})
     y sus patrones de comunicación (\textit{services} y \textit{actions}).
     \item Analizar la arquitectura híbrida de ROS~1 y las limitaciones derivadas
-    de su dependencia del nodo maestro (\textit{roscore}) como punto único de
+    de su dependencia del proceso maestro (ROS Master) como punto único de
     falla.
-    \item Describir el modelo descentralizado de ROS~2 y la pila de
-    comunicaciones DDS, RTPS y UDP/IP.
-    \item Analizar los mecanismos de calidad de servicio (QoS) y su
+    \item Describir el modelo descentralizado de ROS~2 y su pila de
+    protocolos: DDS, RTPS y UDP/IP.
+    \item Analizar las políticas de calidad de servicio (QoS) y su
     configuración.
     \item Relevar el soporte de ROS~2 para sistemas operativos de tiempo real
-    (RTOS) y microcontroladores mediante micro-ROS.
+    (RTOS) y para microcontroladores mediante micro-ROS.
     \item Describir la capa de abstracción de \textit{middleware} (RMW) y
     comparar sus principales implementaciones: Eclipse Cyclone DDS, eProsima
     Fast DDS y RTI Connext DDS.
@@ -54,17 +54,17 @@ Para ello se plantean los siguientes objetivos específicos:
     la red.
 \end{itemize}
 
-En cuanto al alcance, el estudio se centra en la capa de \textit{middleware} y
-transporte de datos, complementado con una prueba de concepto de carácter
-demostrativo. No se abordan en profundidad los algoritmos de
-percepción, planificación o control, ni el desarrollo de aplicaciones
+En cuanto al alcance, el estudio se circunscribe a las capas de
+\textit{middleware} y de transporte de datos, y se complementa con una prueba
+de concepto de carácter demostrativo. Quedan fuera de su alcance los algoritmos
+de percepción, planificación y control, así como el desarrollo de aplicaciones
 robóticas específicas.
 
 \subsection{Metodología y Fuentes de investigación}
 La investigación es de tipo descriptivo y de enfoque cualitativo. Se basa en
 el análisis documental de las fuentes técnicas que definen la arquitectura de
 ROS y de los estándares de comunicaciones sobre los que se apoya. Los
-resultados del análisis se contrastan con una prueba de concepto sobre
+resultados del análisis se contrastan mediante una prueba de concepto sobre
 hardware dedicado.
 
 Las fuentes consultadas se agrupan en las siguientes categorías:
@@ -81,7 +81,7 @@ Las fuentes consultadas se agrupan en las siguientes categorías:
     \href{https://www.omg.org/spec/DDSI-RTPS/}{DDSI-RTPS}, y documentos RFC de
     la IETF para los protocolos
     \href{https://www.rfc-editor.org/rfc/rfc768}{UDP (RFC~768)} e
-    \href{https://www.rfc-editor.org/rfc/rfc791}{IP (RFC~791)}.
+    \href{https://www.rfc-editor.org/rfc/rfc791}{IPv4 (RFC~791)}.
     \item \textbf{Documentación de fabricantes:} documentación técnica de las
     implementaciones \href{https://cyclonedds.io}{Eclipse Cyclone DDS},
     \href{https://fast-dds.docs.eprosima.com}{eProsima Fast DDS} y
@@ -96,20 +96,21 @@ El análisis se delimita según los siguientes criterios:
 \begin{itemize}
     \item \textbf{Sectores:} telecomunicaciones, robótica y dispositivos IoT
     (\textit{Internet of Things}).
-    \item \textbf{Objeto de estudio:} el sistema de comunicaciones de ROS~1 y
-    ROS~2, sin abarcar el resto de las herramientas del ecosistema.
+    \item \textbf{Objeto de estudio:} el subsistema de comunicaciones de ROS~1
+    y ROS~2, con exclusión del resto de las herramientas del ecosistema.
     \item \textbf{Capas analizadas:} \textit{middleware} (RMW y DDS), protocolo
     de interoperabilidad (RTPS) y transporte (UDP/IP).
-    \item \textbf{Plataformas:} distribuciones de ROS sobre Ubuntu Linux, RTOS y
-    microcontroladores a través de micro-ROS.
+    \item \textbf{Plataformas:} distribuciones de ROS sobre Ubuntu Linux,
+    sistemas operativos de tiempo real y microcontroladores mediante
+    micro-ROS.
 \end{itemize}
 
 \subsection{Universo Espacio Temporal}
 En el plano temporal, el estudio abarca la evolución de ROS desde el inicio de
 su desarrollo en 2007 hasta las distribuciones vigentes de ROS~2 en 2026. Se
-pone especial énfasis en el período 2021--2026, en el que ROS~2 se consolida
-como la plataforma de referencia y ROS~1 alcanza el fin de su soporte con la
-distribución Noetic en 2025.
+pone especial énfasis en el período 2021--2026, durante el cual ROS~2 supera a
+ROS~1 en adopción y este último alcanza el fin de su soporte con la
+distribución Noetic, en mayo de 2025.
 
 En el plano espacial, el análisis tiene alcance global, dado que ROS y los
 estándares asociados son desarrollados y adoptados a nivel internacional. Se
