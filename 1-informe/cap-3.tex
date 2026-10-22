@@ -1,14 +1,411 @@
 \subsection{Fundamentos técnicos}
 
-Fundamentos técnicos del trabajo, desarrollos teóricos, información de
-arquitectura, esquemas, etc.
+\subsubsection{Conceptos arquitectónicos: nodos y \textit{topics}}
+
+Un sistema basado en ROS se organiza como un grafo de procesos que se
+comunican entre sí, denominado grafo de ROS. La unidad básica de este grafo es
+el \textbf{nodo}: un participante que realiza una función lógica específica,
+como leer un sensor, estimar la posición del robot o controlar un motor. Cada
+nodo utiliza una biblioteca cliente para comunicarse con el resto del sistema:
+\texttt{roscpp} y \texttt{rospy} en ROS~1, y \texttt{rclcpp} y \texttt{rclpy}
+en ROS~2, para los lenguajes C++ y Python respectivamente. Los nodos pueden
+comunicarse con otros nodos alojados en el mismo proceso, en otro proceso o en
+otro equipo de la red. Las conexiones entre ellos se establecen mediante un
+mecanismo de descubrimiento, cuya implementación difiere entre ROS~1 y ROS~2,
+según se detalla más adelante.
+
+El mecanismo de comunicación fundamental es el \textbf{\textit{topic}}: un canal
+con nombre sobre el que opera un modelo de publicación/suscripción. Los nodos
+productores de datos (\textit{publishers}) publican mensajes en un
+\textit{topic}, y todos los nodos suscritos a él (\textit{subscribers}) los
+reciben. Un mismo \textit{topic} admite cero o más publicadores y cero o más
+suscriptores, lo que configura un esquema de comunicación de muchos a muchos.
+Este modelo presenta dos propiedades relevantes:
+\begin{itemize}
+    \item \textbf{Anonimato:} el suscriptor no necesita conocer qué nodo
+    originó el dato. Esto permite reemplazar, agregar o quitar nodos sin
+    modificar el resto del sistema.
+    \item \textbf{Tipado fuerte:} cada \textit{topic} transporta un único tipo
+    de mensaje, definido en un archivo \texttt{.msg}. A partir de esta
+    definición, las herramientas de ROS generan automáticamente el código para
+    los distintos lenguajes soportados.
+\end{itemize}
+
+Los \textit{topics} resultan adecuados para flujos de datos continuos, como
+las lecturas de sensores o el estado del robot, donde no se espera una
+respuesta por parte del receptor.
+
+\subsubsection{Patrones de comunicación: \textit{services} y \textit{actions}}
+
+Además de los \textit{topics}, ROS ofrece dos patrones de comunicación
+orientados a la interacción entre un cliente y un servidor.
+
+Un \textbf{\textit{service}} implementa una llamada a procedimiento remoto
+(RPC, \textit{Remote Procedure Call}) bajo un esquema de solicitud y
+respuesta. Un nodo cliente envía una solicitud, el nodo servidor realiza el
+procesamiento correspondiente y devuelve un resultado. Su interfaz se define en
+un archivo \texttt{.srv}, compuesto por un mensaje de solicitud y uno de
+respuesta. Cada nombre de \textit{service} debe tener un único servidor, aunque
+puede ser utilizado por cualquier cantidad de clientes. Dado que el cliente
+generalmente queda a la espera del resultado, los \textit{services} están
+pensados para operaciones de ejecución breve, como consultar un estado o
+modificar una configuración.
+
+Una \textbf{\textit{action}} es una llamada a procedimiento remoto de larga
+duración, que incorpora la posibilidad de recibir retroalimentación durante la
+ejecución y de cancelar el objetivo antes de su finalización. Un ejemplo típico
+es la orden de desplazar el robot hasta una posición determinada: la tarea
+puede demorar segundos o minutos, durante los cuales el servidor informa el
+progreso y el cliente puede cancelarla. Su interfaz se define en un archivo
+\texttt{.action}, compuesto por tres mensajes: objetivo (\textit{goal}),
+resultado (\textit{result}) y retroalimentación (\textit{feedback}).
+
+En ROS~2, las \textit{actions} no constituyen un mecanismo de transporte
+independiente, sino que se construyen sobre los dos patrones anteriores: cada
+\textit{action} se compone internamente de tres \textit{services} (envío del
+objetivo, cancelación y obtención del resultado) y dos \textit{topics}
+(retroalimentación y estado). En ROS~1, en cambio, las \textit{actions} no
+formaban parte del núcleo y se implementaban mediante una biblioteca
+independiente denominada \texttt{actionlib}.
+
+\subsubsection{Arquitectura de ROS~1: modelo híbrido y proceso maestro}
+
+En ROS~1, el grafo se organiza en torno a un proceso maestro (ROS Master), que
+se inicia mediante el comando \texttt{roscore} junto con el servidor de
+parámetros (\textit{Parameter Server}) y el nodo de registro \texttt{rosout}.
+El proceso maestro provee servicios de registro y resolución de nombres: cada
+nodo registra ante él los \textit{topics} que publica, aquellos a los que se
+suscribe y los \textit{services} que ofrece. La comunicación con el proceso
+maestro se realiza mediante llamadas XML-RPC, y su ubicación se indica a cada
+nodo a través de la variable de entorno \texttt{ROS\_MASTER\_URI}, cuyo puerto
+por defecto es el 11311.
+
+El establecimiento de una comunicación sobre un \textit{topic} sigue la
+secuencia que se describe a continuación:
+\begin{enumerate}
+    \item El nodo publicador registra el \textit{topic} ante el proceso
+    maestro.
+    \item El nodo suscriptor registra su interés en el \textit{topic} y recibe
+    del proceso maestro la lista de publicadores activos.
+    \item El suscriptor contacta directamente a cada publicador, también
+    mediante XML-RPC, para negociar el protocolo de transporte.
+    \item El intercambio de mensajes se realiza directamente entre ambos
+    nodos, sin intervención del proceso maestro.
+\end{enumerate}
+
+Para el intercambio de datos, ROS~1 define dos protocolos propios. TCPROS,
+basado en TCP, es el transporte por defecto y el único que toda biblioteca
+cliente debe implementar. UDPROS, basado en UDP, ofrece menor latencia a costa
+de admitir pérdidas, por lo que resulta adecuado para aplicaciones como la
+teleoperación; sin embargo, solo está disponible en la biblioteca
+\texttt{roscpp}. En ambos casos, cada par publicador-suscriptor establece una
+conexión independiente, de modo que un mismo mensaje se transmite tantas veces
+como suscriptores remotos existan.
+
+La arquitectura resultante es híbrida: centralizada para el descubrimiento y
+distribuida para el transporte de datos. Esta característica determina su
+principal limitación: el proceso maestro constituye un punto único de falla,
+dado que sin él los nodos no pueden localizarse entre sí ni establecer nuevas
+comunicaciones. A ello se suman la ausencia de un mecanismo de descubrimiento
+automático en la red y la falta de un modelo de calidad de servicio que permita
+adaptar la comunicación a enlaces con pérdidas.
+
+\subsubsection{Arquitectura de ROS~2: modelo descentralizado basado en DDS}
+
+ROS~2 elimina el proceso maestro y delega el descubrimiento, la serialización y
+el transporte de datos en un \textit{middleware} que implementa el estándar DDS
+y su protocolo de interoperabilidad RTPS. El descubrimiento se realiza de forma
+distribuida: cada participante anuncia su presencia en la red y detecta a los
+demás sin intermediarios, lo que suprime el punto único de falla de ROS~1.
+
+\paragraph{DDS (\textit{Data Distribution Service}).} Es un estándar de la
+OMG, cuya versión vigente es la 1.4 (2015), que define un modelo de
+publicación/suscripción centrado en los datos (DCPS, \textit{Data-Centric
+Publish-Subscribe}). En este modelo, las aplicaciones comparten un espacio
+global de datos en el que el \textit{middleware} conoce el tipo y las
+políticas de calidad de servicio de cada flujo de información, y no solo su
+contenido binario. Sus entidades principales son el dominio, el participante
+(\textit{DomainParticipant}), el \textit{topic}, y los escritores
+(\textit{DataWriter}) y lectores (\textit{DataReader}) de datos. ROS~2 asocia
+sus conceptos a estas entidades: cada proceso crea un participante DDS, los
+publicadores y suscriptores de ROS~2 se implementan como \textit{DataWriters} y
+\textit{DataReaders}, y la variable de entorno \texttt{ROS\_DOMAIN\_ID}
+(por defecto, 0) determina el dominio DDS. Los nodos ubicados en dominios
+distintos no pueden comunicarse entre sí, lo que permite segmentar
+lógicamente una misma red física.
+
+\paragraph{RTPS (\textit{Real-Time Publish-Subscribe}).} DDS especifica el
+modelo y la interfaz de programación, pero no el formato de los mensajes en la
+red. Esta función corresponde al protocolo DDSI-RTPS, también estandarizado
+por la OMG (versión vigente 2.5, de 2022), que define la representación de los
+datos en la red y garantiza la interoperabilidad entre implementaciones de
+distintos fabricantes. RTPS especifica, entre otros aspectos:
+\begin{itemize}
+    \item \textbf{Descubrimiento en dos fases:} el protocolo SPDP
+    (\textit{Simple Participant Discovery Protocol}) permite que los
+    participantes anuncien su presencia en el dominio, y el protocolo SEDP
+    (\textit{Simple Endpoint Discovery Protocol}) permite intercambiar la
+    información de sus \textit{DataWriters} y \textit{DataReaders}.
+    \item \textbf{Confiabilidad sobre transportes no confiables:} mediante los
+    submensajes HEARTBEAT, con el que el escritor informa las muestras
+    disponibles, y ACKNACK, con el que el lector confirma las muestras
+    recibidas y solicita la retransmisión de las faltantes.
+\end{itemize}
+
+\paragraph{UDP (\textit{User Datagram Protocol}).} RTPS opera habitualmente
+sobre UDP, definido en el RFC~768 (1980). Se trata de un protocolo de
+transporte no orientado a conexión que, según su especificación, no garantiza
+la entrega ni la protección contra duplicados. Su elección responde a dos
+motivos: admite el envío \textit{multicast}, necesario para el descubrimiento
+automático, y su bajo costo permite que RTPS implemente la confiabilidad solo
+cuando la política de calidad de servicio lo requiere. Por este motivo, incluso
+la comunicación confiable de ROS~2 se implementa sobre UDP. Las implementaciones
+pueden emplear, además, mecanismos alternativos como la memoria compartida para
+la comunicación entre procesos de un mismo equipo.
+
+\paragraph{IP (\textit{Internet Protocol}).} En la capa de red, IP, definido
+para su versión~4 en el RFC~791 (1981), se limita a entregar datagramas desde
+un origen hasta un destino a través de redes interconectadas. El
+descubrimiento de RTPS utiliza el grupo \textit{multicast} 239.255.0.1, y los
+puertos UDP se derivan del identificador de dominio según la expresión
+$7400 + 250 \cdot d$ más un desplazamiento que depende del tipo de tráfico y del
+participante, donde $d$ es el identificador de dominio.
+
+En síntesis, la pila de comunicaciones de ROS~2 se organiza en cuatro niveles:
+DDS define el modelo de datos y la interfaz de programación; RTPS, el protocolo
+de interoperabilidad, el descubrimiento y la confiabilidad; UDP, el transporte
+de los datagramas; e IP, su encaminamiento a través de la red.
+
+\subsubsection{Calidad de servicio (QoS)}
+
+ROS~2 permite configurar el comportamiento de cada comunicación mediante un
+conjunto de políticas de calidad de servicio heredadas de DDS. La combinación
+de políticas aplicada a un publicador, un suscriptor, un servidor o un cliente
+de \textit{service} constituye un perfil de QoS. Las políticas disponibles son:
+\begin{itemize}
+    \item \textbf{\textit{History}:} \textit{keep last} conserva únicamente las
+    últimas $N$ muestras, mientras que \textit{keep all} conserva todas las
+    muestras dentro de los límites de recursos del \textit{middleware}.
+    \item \textbf{\textit{Depth}:} tamaño de la cola, aplicable solo con
+    \textit{keep last}.
+    \item \textbf{\textit{Reliability}:} \textit{best effort} intenta entregar
+    las muestras, pero admite pérdidas; \textit{reliable} garantiza la entrega
+    mediante retransmisiones.
+    \item \textbf{\textit{Durability}:} con \textit{transient local}, el
+    publicador conserva las muestras para entregarlas a suscriptores que se
+    incorporen tardíamente; con \textit{volatile}, no se conservan.
+    \item \textbf{\textit{Deadline}:} intervalo máximo esperado entre mensajes
+    consecutivos.
+    \item \textbf{\textit{Lifespan}:} tiempo máximo entre la publicación y la
+    recepción de un mensaje antes de que se lo considere expirado y se lo
+    descarte.
+    \item \textbf{\textit{Liveliness}} y \textbf{\textit{Lease Duration}:}
+    mecanismo y plazo con los que un publicador debe indicar que continúa
+    activo antes de que el sistema considere que perdió vigencia.
+\end{itemize}
+
+Para simplificar su uso, ROS~2 define perfiles predefinidos. El perfil por
+defecto emplea \textit{keep last} con profundidad 10, \textit{reliable} y
+\textit{volatile}, con el fin de reproducir el comportamiento de ROS~1. El
+perfil para datos de sensores, en cambio, emplea \textit{best effort} y una cola
+de menor tamaño, dado que en estas aplicaciones resulta prioritario recibir la
+muestra más reciente antes que garantizar la recepción de todas. Existen,
+además, perfiles específicos para \textit{services} y parámetros.
+
+La conexión entre un publicador y un suscriptor solo se establece si sus
+perfiles son compatibles, según un modelo de solicitud y oferta
+(\textit{Request vs.\ Offered}): el suscriptor solicita una calidad mínima y el
+publicador ofrece una calidad máxima, y la comunicación se establece únicamente
+si ninguna política solicitada es más exigente que la ofrecida. Por ejemplo, un
+publicador \textit{best effort} no puede comunicarse con un suscriptor
+\textit{reliable}, mientras que la combinación inversa sí es válida.
+
+Respecto de ROS~1, las políticas \textit{History} y \textit{Depth} equivalen al
+tamaño de cola; \textit{Reliability} equivale a la elección entre UDPROS y
+TCPROS; y \textit{transient local} reproduce el comportamiento de los
+publicadores con retención (\textit{latching}). Las políticas restantes no
+tienen equivalente en ROS~1.
+
+\subsubsection{Capa de abstracción de \textit{middleware} (RMW)}
+
+Para no depender de un único fabricante, ROS~2 interpone una capa de
+abstracción entre su código y la implementación de DDS. La arquitectura se
+organiza en los siguientes niveles:
+\begin{enumerate}
+    \item \textbf{Bibliotecas cliente} (\texttt{rclcpp}, \texttt{rclpy}):
+    proveen la interfaz de programación que utiliza el desarrollador.
+    \item \textbf{\texttt{rcl}} (\textit{ROS Client Library}): biblioteca en C
+    que implementa la lógica común a todas las bibliotecas cliente.
+    \item \textbf{\texttt{rmw}} (\textit{ROS Middleware Interface}): interfaz
+    que define la funcionalidad mínima que debe proveer el \textit{middleware}:
+    descubrimiento, publicación y suscripción, solicitud y respuesta, y
+    serialización.
+    \item \textbf{Implementación de \texttt{rmw}}: paquete específico de cada
+    fabricante (por ejemplo, \texttt{rmw\_fastrtps\_cpp}) que traduce la
+    interfaz \texttt{rmw} a la API de su implementación de DDS o RTPS.
+\end{enumerate}
+
+Esta arquitectura aísla al código de usuario del \textit{middleware}
+subyacente, de modo que el cambio de fabricante no requiere modificar la
+aplicación. La implementación se selecciona en tiempo de ejecución mediante la
+variable de entorno \texttt{RMW\_IMPLEMENTATION}; si no se especifica, se
+utiliza Fast DDS. Las distintas implementaciones pueden comunicarse entre sí al
+compartir el protocolo RTPS, aunque la documentación oficial advierte que la
+interoperabilidad entre fabricantes no está garantizada en todos los casos.
+
+\subsubsection{Soporte de tiempo real y microcontroladores}
+
+ROS~1 no fue diseñado para aplicaciones de tiempo real: sus hipótesis de diseño
+asumían que tales requisitos se resolverían mediante soluciones específicas,
+externas al sistema. ROS~2 incorpora este requisito desde su concepción,
+aunque el determinismo temporal no depende únicamente de ROS, sino de toda la
+pila de ejecución: el sistema operativo, el \textit{middleware}, la
+planificación de la ejecución de las tareas y la gestión de memoria de la
+aplicación.
+
+En plataformas Linux, el comportamiento de tiempo real se obtiene mediante el
+conjunto de modificaciones PREEMPT\_RT, que fue incorporado a la rama
+principal del núcleo de Linux en la versión~6.12, tras cerca de dos décadas de
+desarrollo independiente. El grupo de trabajo de tiempo real de ROS~2
+(\textit{Real-Time Working Group}) recomienda su uso en aplicaciones con estos
+requisitos y desarrolla herramientas de análisis y medición de desempeño.
+
+Para dispositivos con recursos limitados, el proyecto micro-ROS extiende ROS~2
+a microcontroladores que ejecutan sistemas operativos de tiempo real (RTOS),
+como FreeRTOS, Zephyr y NuttX. Su arquitectura se basa en el modelo
+cliente-agente del \textit{middleware} Micro XRCE-DDS, que implementa el
+estándar DDS-XRCE (\textit{DDS for eXtremely Resource Constrained
+Environments}) de la OMG:
+\begin{itemize}
+    \item \textbf{Cliente:} biblioteca escrita en C99 que se ejecuta en el
+    microcontrolador y opera sin memoria dinámica.
+    \item \textbf{Agente:} aplicación que se ejecuta en un equipo con mayores
+    recursos y crea, en representación del cliente, las entidades DDS
+    correspondientes.
+\end{itemize}
+De este modo, el microcontrolador se presenta ante el resto del sistema como
+un participante más del grafo de ROS~2. La comunicación entre cliente y agente
+puede realizarse a través de enlaces serie o de UDP, entre otros transportes.
 
 \subsection{Ámbitos de aplicación}
 
-Donde se utiliza y como, en que mercados, etc.
+ROS se aplica en un amplio espectro de dominios, en los que su ecosistema
+provee componentes especializados. Según el informe de métricas del proyecto
+correspondiente a 2022, más de 740 empresas comerciales utilizaban ROS. Entre
+los principales ámbitos se destacan:
+\begin{itemize}
+    \item \textbf{Investigación y educación:} ámbito de origen del proyecto,
+    en el que ROS constituye una herramienta habitual para la enseñanza y el
+    desarrollo de prototipos robóticos.
+    \item \textbf{Robótica industrial:} el consorcio ROS-Industrial, impulsado
+    en 2012 por el Southwest Research Institute (SwRI), extiende ROS a las
+    necesidades de la manufactura. Cuenta con consorcios regionales en
+    América, Europa (coordinado por Fraunhofer IPA) y Asia.
+    \item \textbf{Robótica móvil y logística:} Nav2, la evolución para ROS~2
+    de la pila de navegación de ROS, provee funciones de localización,
+    planificación de trayectorias y evasión de obstáculos para robots móviles.
+    \item \textbf{Manipulación:} MoveIt~2 constituye el \textit{framework} de
+    planificación de movimientos para brazos robóticos en ROS~2.
+    \item \textbf{Vehículos autónomos:} Autoware es una pila de software de
+    código abierto para conducción autónoma, construida sobre ROS~2 y
+    distribuida bajo licencia Apache~2.0, que abarca percepción, localización,
+    predicción, planificación y control del vehículo.
+    \item \textbf{Aplicaciones espaciales:} el robot Robonaut~2 de la NASA
+    constituyó el primer uso confirmado de ROS en el espacio, a bordo de la
+    Estación Espacial Internacional hacia 2014. Actualmente, el proyecto Space
+    ROS, impulsado por la NASA, Blue Origin y Open Robotics, adapta ROS~2 a los
+    requisitos de verificación y validación del software aeroespacial.
+\end{itemize}
 
 \subsection{Estrategias Competitivas}
-¿Competencia? ¿Producto único?
 
-\subsection{Normativas asociadas}
-¿Qué normas tiene asociadas ITU, IEEE?
+ROS no compite como producto comercial, sino como plataforma abierta. Su
+estrategia se sustenta en tres elementos: el licenciamiento permisivo, que
+permite su uso comercial sin restricciones significativas; la adopción de
+estándares abiertos de comunicaciones, que evita la dependencia de tecnologías
+propietarias; y el ecosistema de paquetes y herramientas, que reduce el costo
+de desarrollo de nuevos sistemas.
+
+La competencia más relevante desde la perspectiva de las comunicaciones se
+produce en la capa de \textit{middleware}. La interfaz RMW permite que
+distintas implementaciones compitan por ser adoptadas sin afectar a las
+aplicaciones. En la distribución Lyrical Luth, cuatro implementaciones cuentan
+con soporte de primer nivel (\textit{Tier~1}), con modelos de negocio
+diferenciados:
+\begin{itemize}
+    \item \textbf{eProsima Fast DDS:} implementación de código abierto bajo
+    licencia Apache~2.0. Es el \textit{middleware} por defecto de todas las
+    distribuciones LTS de ROS~2 y se distribuye con sus paquetes binarios.
+    eProsima desarrolla, además, Micro XRCE-DDS, el \textit{middleware} de
+    micro-ROS.
+    \item \textbf{Eclipse Cyclone DDS:} implementación de código abierto bajo
+    licencia EPL~2.0 (\textit{Eclipse Public License}), gobernada por la
+    Eclipse Foundation. Tiene su origen en la contribución de la empresa ADLINK
+    a partir de la tecnología OpenSplice DDS.
+    \item \textbf{RTI Connext DDS:} implementación comercial de Real-Time
+    Innovations (RTI), disponible sin costo para uso no comercial y de
+    investigación. RTI ofrece variantes orientadas a microcontroladores y a
+    aplicaciones que requieren certificaciones de seguridad funcional, si
+    bien ROS~2 solo soporta su versión estándar.
+    \item \textbf{Eclipse Zenoh:} alternativa que no se basa en DDS. Utiliza
+    un enrutador para el descubrimiento, deshabilita el \textit{multicast} por
+    defecto y emplea TCP como transporte, lo que resulta ventajoso en redes
+    donde el \textit{multicast} es poco confiable, como las redes
+    inalámbricas. Se distribuye con los paquetes binarios de ROS~2 desde la
+    distribución Kilted Kaiju.
+\end{itemize}
+
+Existen, asimismo, implementaciones con soporte comunitario, como GurumDDS, de
+GurumNetworks. Esta pluralidad de proveedores constituye una ventaja
+estratégica de ROS~2: evita la dependencia de un único fabricante y permite
+seleccionar el \textit{middleware} según criterios técnicos, como la latencia o
+el consumo de recursos, o logísticos, como el licenciamiento y el soporte
+comercial.
+
+\subsection{Normativas asociadas}\label{sec:normativas}
+
+Las normas técnicas vinculadas a ROS se concentran en los estándares de
+comunicaciones sobre los que se apoya su \textit{middleware}. Se agrupan según
+el organismo emisor:
+\begin{itemize}
+    \item \textbf{OMG (\textit{Object Management Group}):}
+    \begin{itemize}
+        \item DDS~1.4 (2015): modelo de publicación/suscripción centrado en los
+        datos e interfaz de programación.
+        \item DDSI-RTPS~2.5 (2022): protocolo de interoperabilidad en la red.
+        \item DDS-Security~1.2 (2026): autenticación, control de acceso y
+        cifrado, base de SROS~2.
+        \item DDS-XRCE~1.0 (2020): acceso a DDS desde dispositivos con recursos
+        extremadamente limitados, base de micro-ROS.
+        \item DDS-XTypes: sistema de tipos extensible para la definición y
+        evolución de los tipos de datos.
+    \end{itemize}
+    \item \textbf{IETF (\textit{Internet Engineering Task Force}):} RFC~768
+    (UDP, 1980) y RFC~791 (IPv4, 1981), que definen el transporte y la capa de
+    red sobre los que opera RTPS.
+    \item \textbf{IEEE (\textit{Institute of Electrical and Electronics
+    Engineers}):} las normas IEEE~802.3 (Ethernet) e IEEE~802.11 (redes
+    inalámbricas de área local) definen los enlaces sobre los que se
+    despliegan habitualmente los sistemas basados en ROS. No se identificó una
+    norma IEEE específica para ROS o DDS.
+    \item \textbf{ITU (\textit{International Telecommunication Union}):} no se
+    identificaron recomendaciones de la ITU aplicables específicamente a ROS o
+    a DDS.
+    \item \textbf{ISO (\textit{International Organization for
+    Standardization}):} si bien no regulan el \textit{middleware}, alcanzan a
+    los sistemas robóticos construidos sobre ROS:
+    \begin{itemize}
+        \item ISO~10218-1:2025 e ISO~10218-2:2025: requisitos de seguridad
+        para robots industriales, dirigidos a fabricantes e integradores,
+        respectivamente. Reemplazan a las ediciones de 2011.
+        \item ISO/TS~15066:2016: requisitos de seguridad para aplicaciones de
+        robots colaborativos, complementaria de la ISO~10218.
+        \item ISO~13482:2014: requisitos de seguridad para robots de cuidado
+        personal.
+    \end{itemize}
+\end{itemize}
+
+En el ámbito interno del proyecto, las REP (\textit{ROS Enhancement
+Proposals}) cumplen una función normativa propia: documentan las convenciones,
+los procesos y las plataformas soportadas, como la REP~2000 citada en la
+Sección~\ref{sec:contexto}.

@@ -30,7 +30,7 @@
 \title{ROS 2 - Sistema Operativo de Robótica}
 \subtitle{Proyecto de investigación - Sistemas de Comunicaciones}
 \addauthor{Pablo Sebastian}{Gomez}
-\addauthor{Irina}{Terebi}
+\addauthor{Irina}{Terebiznik}
 \addauthor{Matias}{Peña}
 \course{Sistemas de Comunicaciones}
 \coverimage{logo-universidad2.png}
@@ -42,40 +42,324 @@
 \begin{document}
 
 \section*{Extracto}
-El presente informe tiene como objetivo presentar un análisis detallado del Sistema Operativo de Robótica (ROS 2), explorando sus características, arquitectura y aplicaciones en el ámbito de la robótica. Se abordarán aspectos clave como la comunicación entre nodos, la gestión de sensores y actuadores, y la integración con hardware específico. Además, se discutirán las ventajas y desafíos asociados con el uso de ROS 2 en proyectos de investigación y desarrollo.
+El presente informe analiza ROS (\textit{Robot Operating System}) desde la perspectiva de los sistemas de comunicaciones. Se describen sus conceptos arquitectónicos y patrones de comunicación, y se examina la transición desde la arquitectura híbrida de ROS~1, dependiente de un proceso maestro central, hacia el modelo descentralizado de ROS~2, sustentado en el estándar DDS y en el protocolo RTPS. Se analizan, asimismo, los mecanismos de calidad de servicio (QoS), la capa de abstracción de \textit{middleware} (RMW) y sus principales implementaciones, el soporte para sistemas de tiempo real y microcontroladores, y el esquema de distribuciones del proyecto. El estudio se complementa con una prueba de concepto sobre hardware dedicado.
 
-\section{Capitulo 1}
+\section{Capítulo 1}
 \input{cap-1.tex}
 
-\section{Capitulo 2}
+\section{Capítulo 2}
 \input{cap-2.tex}
 
-\section{Capitulo 3}
+\section{Capítulo 3}
 \input{cap-3.tex}
 
-\section{Capitulo 4}
+\section{Capítulo 4}
 \subsection{Conclusiones}
 
-Al finalizar el ...
+El análisis realizado permite caracterizar la evolución de ROS como una
+transición desde una arquitectura de comunicaciones propia y parcialmente
+centralizada hacia una arquitectura distribuida sustentada en estándares
+industriales. En ROS~1, el proceso maestro concentra el registro y la
+resolución de nombres, lo que lo convierte en un punto único de falla y
+condiciona el despliegue en redes extensas o poco confiables. ROS~2 elimina
+esta dependencia mediante el descubrimiento distribuido que provee RTPS.
+
+La adopción de DDS y RTPS inscribe a ROS~2 en un marco normativo consolidado,
+definido por la OMG en las capas de \textit{middleware} e interoperabilidad y
+por la IETF en las capas de transporte y red. Esta organización en capas
+asigna a cada nivel una función definida: DDS establece el modelo de datos,
+RTPS el protocolo de interoperabilidad, UDP el transporte e IP el
+encaminamiento. La elección de UDP como transporte resulta coherente con este
+diseño, dado que habilita el descubrimiento mediante \textit{multicast} y
+traslada a RTPS la implementación de la confiabilidad, que se aplica solo
+cuando la política de calidad de servicio lo requiere.
+
+Desde la perspectiva de los sistemas de comunicaciones, las políticas de QoS
+constituyen el aporte más significativo de ROS~2, ya que permiten adecuar el
+comportamiento de cada flujo de datos a las características del enlace y de la
+aplicación, por ejemplo, priorizando la actualidad de los datos de sensores
+sobre la garantía de entrega. Como contrapartida, incorporan un factor de
+complejidad en el diseño: los perfiles incompatibles impiden establecer la
+comunicación, por lo que su configuración debe definirse de manera coherente
+en todo el sistema.
+
+La capa de abstracción RMW desacopla las aplicaciones de la implementación del
+\textit{middleware} y habilita la coexistencia de múltiples proveedores con
+modelos de licenciamiento diferenciados. La incorporación de Zenoh como
+implementación de primer nivel demuestra que esta abstracción admite incluso
+alternativas no basadas en DDS, orientadas a escenarios en los que el
+descubrimiento mediante \textit{multicast} presenta limitaciones, como las
+redes inalámbricas.
+
+Por último, ROS~2 amplía su alcance hacia sistemas con requisitos de tiempo
+real, mediante el soporte de núcleos Linux con PREEMPT\_RT, y hacia
+microcontroladores, mediante micro-ROS y el estándar DDS-XRCE. No obstante, el
+determinismo temporal depende del conjunto de la pila de ejecución y no
+únicamente del \textit{middleware}. Asimismo, la vinculación de cada
+distribución con una versión LTS de Ubuntu constituye un factor a considerar
+en la planificación del ciclo de vida de los sistemas desplegados.
+
+% TODO: incorporar los resultados de la prueba de concepto sobre Raspberry Pi
+% una vez definida y ejecutada la demostración.
 
 \subsection{Glosario de términos}
-Terminología utilizada en el informe:
+Términos y definiciones:
 \begin{itemize}
-    \item \textbf{ROS 2:} Robot Operating System 2, un sistema operativo de código abierto para la robótica.
-    \item \textbf{Nodo:} Una unidad de ejecución en ROS 2 que realiza tareas específicas y se comunica con otros nodos.
+    \item \textbf{ACKNACK:} submensaje de RTPS con el que un lector confirma las
+    muestras recibidas y solicita las faltantes.
+    \item \textbf{\textit{Action}:} patrón de comunicación de ROS para tareas
+    de larga duración, con retroalimentación y posibilidad de cancelación.
+    \item \textbf{DCPS:} \textit{Data-Centric Publish-Subscribe}. Modelo de
+    publicación/suscripción centrado en los datos definido por DDS.
+    \item \textbf{DDS:} \textit{Data Distribution Service}. Estándar de
+    \textit{middleware} de la OMG para la distribución de datos.
+    \item \textbf{DDS-XRCE:} \textit{DDS for eXtremely Resource Constrained
+    Environments}. Estándar de la OMG para el acceso a DDS desde dispositivos
+    con recursos limitados.
+    \item \textbf{Distribución:} conjunto versionado de paquetes de ROS que se
+    prueban y mantienen en conjunto.
+    \item \textbf{HEARTBEAT:} submensaje de RTPS con el que un escritor
+    informa las muestras disponibles.
+    \item \textbf{IETF:} \textit{Internet Engineering Task Force}.
+    \item \textbf{IP:} \textit{Internet Protocol}.
+    \item \textbf{LTS:} \textit{Long Term Support}. Distribución con soporte
+    extendido.
+    \item \textbf{\textit{Middleware}:} capa de software que media entre las
+    aplicaciones y la red, y provee servicios de comunicación.
+    \item \textbf{\textit{Multicast}:} envío de un datagrama a un grupo de
+    destinatarios mediante una única transmisión.
+    \item \textbf{Nodo:} participante del grafo de ROS que realiza una función
+    lógica específica y se comunica con otros nodos.
+    \item \textbf{OMG:} \textit{Object Management Group}.
+    \item \textbf{OSRA:} \textit{Open Source Robotics Alliance}.
+    \item \textbf{OSRF:} \textit{Open Source Robotics Foundation}.
+    \item \textbf{QoS:} \textit{Quality of Service}. Calidad de servicio.
+    \item \textbf{REP:} \textit{ROS Enhancement Proposal}. Documento que
+    define convenciones y procesos del proyecto ROS.
+    \item \textbf{RMW:} \textit{ROS Middleware Interface}. Capa de abstracción
+    entre ROS~2 y la implementación del \textit{middleware}.
+    \item \textbf{ROS:} \textit{Robot Operating System}. \textit{Framework} de
+    código abierto para el desarrollo de software robótico.
+    \item \textbf{ROS Master:} proceso central de ROS~1 que provee registro y
+    resolución de nombres.
+    \item \textbf{RPC:} \textit{Remote Procedure Call}. Llamada a procedimiento
+    remoto.
+    \item \textbf{RTOS:} \textit{Real-Time Operating System}. Sistema operativo
+    de tiempo real.
+    \item \textbf{RTPS:} \textit{Real-Time Publish-Subscribe}. Protocolo de
+    interoperabilidad de DDS, especificado como DDSI-RTPS.
+    \item \textbf{SEDP:} \textit{Simple Endpoint Discovery Protocol}.
+    \item \textbf{\textit{Service}:} patrón de comunicación de ROS de solicitud
+    y respuesta.
+    \item \textbf{SPDP:} \textit{Simple Participant Discovery Protocol}.
+    \item \textbf{SROS~2:} \textit{Secure Robot Operating System 2}. Conjunto
+    de herramientas que integra DDS-Security en ROS~2.
+    \item \textbf{TCPROS / UDPROS:} protocolos de transporte de ROS~1, basados
+    en TCP y UDP respectivamente.
+    \item \textbf{\textit{Topic}:} canal con nombre de publicación/suscripción
+    de ROS.
+    \item \textbf{UDP:} \textit{User Datagram Protocol}.
+    \item \textbf{XML-RPC:} protocolo de llamada a procedimiento remoto
+    codificado en XML, empleado por ROS~1 para la comunicación con el proceso
+    maestro.
 \end{itemize}
 
 % ======================================================================
 % BIBLIOGRAFÍA EMBEBIDA
 % ======================================================================
+\subsection{Referencias}
+% thebibliography crea su propio \section*{Referencias}; se anula dentro
+% del grupo para que quede como subsección 4.3, igual que la plantilla.
+\begingroup
+\renewcommand{\section}[2]{}
 \begin{thebibliography}{99}
 
-\bibitem{ref_ejemplo1}
-A. S. Sedra y K. C. Smith, \emph{Microelectronic Circuits}, 7ma ed. Oxford University Press, 2015.
+\bibitem{ros2docs}
+Open Robotics, \emph{ROS 2 Documentation: Jazzy}. [En línea]. Disponible en:
+\url{https://docs.ros.org/en/jazzy/}
 
-\bibitem{datasheet_ejemplo}
-Texas Instruments, \emph{LM317 3-Terminal Adjustable Regulator}, Datasheet SLVS044X, 2020. [Disponible en carpeta \texttt{references/}].
+\bibitem{ros2qos}
+Open Robotics, ``Quality of Service settings,'' \emph{ROS 2 Documentation}.
+[En línea]. Disponible en:
+\url{https://docs.ros.org/en/jazzy/Concepts/Intermediate/About-Quality-of-Service-Settings.html}
+
+\bibitem{ros2vendors}
+Open Robotics, ``Different ROS 2 middleware vendors,'' \emph{ROS 2
+Documentation}. [En línea]. Disponible en:
+\url{https://docs.ros.org/en/jazzy/Concepts/Intermediate/About-Different-Middleware-Vendors.html}
+
+\bibitem{ros2internal}
+Open Robotics, ``Internal ROS 2 interfaces,'' \emph{ROS 2 Documentation}.
+[En línea]. Disponible en:
+\url{https://docs.ros.org/en/jazzy/Concepts/Advanced/About-Internal-Interfaces.html}
+
+\bibitem{ros2domain}
+Open Robotics, ``The ROS\_DOMAIN\_ID,'' \emph{ROS 2 Documentation}. [En línea].
+Disponible en:
+\url{https://docs.ros.org/en/jazzy/Concepts/Intermediate/About-Domain-ID.html}
+
+\bibitem{lyrical}
+Open Robotics, ``Lyrical Luth (\texttt{lyrical}),'' \emph{ROS 2
+Documentation}, may. 2026. [En línea]. Disponible en:
+\url{https://docs.ros.org/en/lyrical/Releases/Release-Lyrical-Luth.html}
+
+\bibitem{rep2000}
+M. Arguedas \emph{et al.}, ``REP 2000: ROS 2 Releases and Target Platforms,''
+\emph{ROS Enhancement Proposals}. [En línea]. Disponible en:
+\url{https://www.ros.org/reps/rep-2000.html}
+
+\bibitem{whyros2}
+B. Gerkey, ``Why ROS 2?,'' \emph{ROS 2 Design}, jun. 2014. [En línea]. Disponible en:
+\url{https://design.ros2.org/articles/why_ros2.html}
+
+\bibitem{ros2actions}
+Open Robotics, ``Actions,'' \emph{ROS 2 Design}. [En línea]. Disponible en:
+\url{https://design.ros2.org/articles/actions.html}
+
+\bibitem{ros2security}
+Open Robotics, ``ROS 2 DDS-Security integration,'' \emph{ROS 2 Design}.
+[En línea]. Disponible en:
+\url{https://design.ros2.org/articles/ros2_dds_security.html}
+
+\bibitem{rosmaster}
+Open Robotics, ``Master'' y ``roscore,'' \emph{ROS Wiki}. [En línea].
+Disponible en: \url{http://wiki.ros.org/Master}
+
+\bibitem{noeticeol}
+Open Robotics, ``ROS Noetic End-of-Life: May 31, 2025,'' \emph{Open Robotics
+Discourse}. [En línea]. Disponible en:
+\url{https://discourse.openrobotics.org/t/ros-noetic-end-of-life-may-31-2025/43160}
+
+\bibitem{omgdds}
+Object Management Group, \emph{Data Distribution Service (DDS)}, versión 1.4,
+2015. [En línea]. Disponible en: \url{https://www.omg.org/spec/DDS/1.4}
+
+\bibitem{omgrtps}
+Object Management Group, \emph{The Real-time Publish-Subscribe Protocol DDS
+Interoperability Wire Protocol (DDSI-RTPS)}, versión 2.5, 2022. [En línea].
+Disponible en: \url{https://www.omg.org/spec/DDSI-RTPS/2.5}
+
+\bibitem{omgsecurity}
+Object Management Group, \emph{DDS Security}, versión 1.2, 2026. [En línea].
+Disponible en: \url{https://www.omg.org/spec/DDS-SECURITY/1.2}
+
+\bibitem{omgxrce}
+Object Management Group, \emph{DDS for eXtremely Resource Constrained
+Environments (DDS-XRCE)}, versión 1.0, 2020. [En línea]. Disponible en:
+\url{https://www.omg.org/spec/DDS-XRCE/1.0}
+
+\bibitem{rfc768}
+J. Postel, ``User Datagram Protocol,'' IETF, RFC~768, ago. 1980. [En línea].
+Disponible en: \url{https://www.rfc-editor.org/rfc/rfc768}
+
+\bibitem{rfc791}
+J. Postel, ``Internet Protocol,'' IETF, RFC~791, sep. 1981. [En línea].
+Disponible en: \url{https://www.rfc-editor.org/rfc/rfc791}
+
+\bibitem{microros}
+micro-ROS, \emph{micro-ROS: ROS 2 for microcontrollers}. [En línea].
+Disponible en: \url{https://micro.vulcanexus.org/}
+
+\bibitem{fastdds}
+eProsima, \emph{Fast DDS Documentation}. [En línea]. Disponible en:
+\url{https://fast-dds.docs.eprosima.com}
+
+\bibitem{cyclonedds}
+Eclipse Foundation, \emph{Eclipse Cyclone DDS}. [En línea]. Disponible en:
+\url{https://cyclonedds.io}
+
+\bibitem{connext}
+Real-Time Innovations, \emph{RTI Connext Documentation}. [En línea].
+Disponible en: \url{https://community.rti.com/documentation}
+
+\bibitem{rmwzenoh}
+Open Robotics, \emph{rmw\_zenoh}, \emph{ROS Index}. [En línea]. Disponible
+en: \url{https://index.ros.org/r/rmw_zenoh/}
+
+\bibitem{preemptrt}
+M. Larabel, ``Real-Time `PREEMPT\_RT' Support Merged For Linux 6.12,''
+\emph{Phoronix}, sep. 2024. [En línea]. Disponible en:
+\url{https://www.phoronix.com/news/Linux-6.12-Does-Real-Time}
+
+\bibitem{wizards}
+E. Ackerman y E. Guizzo, ``Wizards of ROS: Willow Garage and the Making of
+the Robot Operating System,'' \emph{IEEE Spectrum}. [En línea]. Disponible en:
+\url{https://spectrum.ieee.org/wizards-of-ros-willow-garage-and-the-making-of-the-robot-operating-system}
+
+\bibitem{osra}
+Open Source Robotics Foundation, ``Announcing the Open Source Robotics
+Alliance,'' mar. 2024. [En línea]. Disponible en:
+\url{https://openrobotics.org/blog/2024/3/18/announcing-the-open-source-robotics-alliance-osra}
+
+\bibitem{metrics2022}
+The Robot Report, ``2022 ROS 2 metrics report.'' [En línea]. Disponible en:
+\url{https://www.therobotreport.com/2022-ros-2-metrics-report/}
+
+\bibitem{rosindustrial}
+ROS-Industrial, ``Our Brief History.'' [En línea]. Disponible en:
+\url{https://rosindustrial.org/briefhistory}
+
+\bibitem{autoware}
+Autoware Foundation, \emph{Autoware}. [En línea]. Disponible en:
+\url{https://autoware.org}
+
+\bibitem{nav2}
+Open Navigation, \emph{Nav2 Documentation}. [En línea]. Disponible en:
+\url{https://docs.nav2.org}
+
+\bibitem{moveit}
+PickNik Robotics, \emph{MoveIt Documentation}. [En línea]. Disponible en:
+\url{https://moveit.picknik.ai}
+
+\bibitem{rosinspace}
+Open Robotics, ``ROS in Space,'' feb. 2022. [En línea]. Disponible en:
+\url{https://www.openrobotics.org/blog/2022/2/2/rosinspace}
+
+\bibitem{ue2023_1230}
+Unión Europea, \emph{Reglamento (UE) 2023/1230 del Parlamento Europeo y del
+Consejo, relativo a las máquinas}, 2023. [En línea]. Disponible en:
+\url{https://eur-lex.europa.eu/eli/reg/2023/1230/oj}
+
+\bibitem{ue2024_2847}
+Unión Europea, \emph{Reglamento (UE) 2024/2847 del Parlamento Europeo y del
+Consejo, relativo a los requisitos horizontales de ciberseguridad para los
+productos con elementos digitales}, 2024. [En línea]. Disponible en:
+\url{https://eur-lex.europa.eu/eli/reg/2024/2847/oj}
+
+\bibitem{ue2024_1689}
+Unión Europea, \emph{Reglamento (UE) 2024/1689 del Parlamento Europeo y del
+Consejo, por el que se establecen normas armonizadas en materia de
+inteligencia artificial}, 2024. [En línea]. Disponible en:
+\url{https://eur-lex.europa.eu/eli/reg/2024/1689/oj}
+
+\bibitem{ley19587}
+República Argentina, \emph{Ley 19.587 de Higiene y Seguridad en el Trabajo},
+1972, y \emph{Decreto Reglamentario 351/79}. [En línea]. Disponible en:
+\url{https://www.argentina.gob.ar/normativa/nacional/ley-19587-17612}
+
+\bibitem{ley25326}
+República Argentina, \emph{Ley 25.326 de Protección de los Datos Personales},
+2000. [En línea]. Disponible en:
+\url{https://www.argentina.gob.ar/normativa/nacional/64790/texto}
+
+\bibitem{ley11723}
+República Argentina, \emph{Ley 11.723 de Propiedad Intelectual}, modificada
+por la \emph{Ley 25.036}, 1998. [En línea]. Disponible en:
+\url{https://www.argentina.gob.ar/normativa/nacional/ley-11723-42755}
+
+\bibitem{iso10218}
+International Organization for Standardization, \emph{ISO 10218-1:2025 e
+ISO 10218-2:2025, Robotics --- Safety requirements}, 2025.
+
+\bibitem{iso15066}
+International Organization for Standardization, \emph{ISO/TS 15066:2016,
+Robots and robotic devices --- Collaborative robots}, 2016.
+
+\bibitem{iso13482}
+International Organization for Standardization, \emph{ISO 13482:2014, Robots
+and robotic devices --- Safety requirements for personal care robots}, 2014.
 
 \end{thebibliography}
+\endgroup
 
 \end{document}
