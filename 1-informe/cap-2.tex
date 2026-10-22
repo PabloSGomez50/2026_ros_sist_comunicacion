@@ -11,8 +11,9 @@ interfaces estandarizadas.
 
 El proyecto se originó en 2007 en el Laboratorio de Inteligencia Artificial de
 la Universidad de Stanford y continuó su desarrollo en Willow Garage.
-Actualmente es mantenido por la Open Source Robotics Foundation (OSRF) junto a
-una amplia comunidad internacional.
+Actualmente está a cargo de la Open Source Robotics Foundation (OSRF) y, desde
+2024, su gobernanza técnica es ejercida por la Open Source Robotics Alliance
+(OSRA), con la participación de una amplia comunidad internacional.
 
 Las principales razones de su adopción son:
 \begin{itemize}
@@ -27,7 +28,7 @@ Las principales razones de su adopción son:
     \item \textbf{Herramientas:} incluye utilidades de visualización, registro,
     simulación y depuración.
     \item \textbf{Licenciamiento abierto:} se distribuye bajo licencias
-    permisivas (BSD y Apache~2.0), lo que habilita su uso académico e
+    permisivas: BSD en el núcleo de ROS~1 y Apache~2.0 en el de ROS~2, lo que habilita su uso académico e
     industrial.
 \end{itemize}
 
@@ -72,8 +73,10 @@ todos estos componentes intercambien información de forma transparente, sin
 importar en qué equipo se ejecuten.
 
 El software de ROS se publica en \textbf{distribuciones}: conjuntos versionados
-de paquetes que se prueban y se mantienen en conjunto. Desde 2017, ROS~2 lanza
-una nueva distribución cada año, el 23 de mayo. Las distribuciones de los años
+de paquetes que se prueban y se mantienen en conjunto. La primera distribución
+de ROS~2 se publicó en diciembre de 2017 y, durante sus primeros años, las
+versiones se lanzaron con una frecuencia semestral. Desde 2020 se publica una
+nueva distribución por año, en el mes de mayo. Las distribuciones de los años
 pares son de soporte extendido (LTS, \textit{Long Term Support}) y reciben
 actualizaciones durante cinco años, mientras que las de los años impares tienen
 un ciclo de soporte de aproximadamente un año y medio. En paralelo existe
@@ -89,10 +92,13 @@ versión del sistema operativo a utilizar. Las distribuciones LTS más recientes
 y su correspondencia son:
 \begin{itemize}
     \item \textbf{ROS~1 Noetic Ninjemys} (2020): Ubuntu 20.04. Última
-    distribución de ROS~1, con fin de soporte en mayo de 2025.
-    \item \textbf{ROS~2 Humble Hawksbill} (2022): Ubuntu 22.04.
-    \item \textbf{ROS~2 Jazzy Jalisco} (2024): Ubuntu 24.04.
-    \item \textbf{ROS~2 Lyrical Luth} (2026): Ubuntu 26.04.
+    distribución de ROS~1, con fin de soporte el 31 de mayo de 2025.
+    \item \textbf{ROS~2 Humble Hawksbill} (2022): Ubuntu 22.04, con soporte
+    hasta mayo de 2027.
+    \item \textbf{ROS~2 Jazzy Jalisco} (2024): Ubuntu 24.04, con soporte hasta
+    mayo de 2029.
+    \item \textbf{ROS~2 Lyrical Luth} (2026): Ubuntu 26.04, con soporte hasta
+    mayo de 2031.
 \end{itemize}
 
 Además de Ubuntu, las distribuciones de ROS~2 ofrecen distintos niveles de
@@ -117,18 +123,18 @@ criterios:
     grandes empresas industriales y fabricantes de hardware que proveen
     controladores compatibles con ROS para sus sensores, actuadores y robots.
     \item \textbf{Por versión:} si bien ROS~1 mantuvo una amplia base instalada
-    durante más de una década, la finalización de su soporte en 2025 orientó
-    la adopción hacia ROS~2, en especial para nuevos desarrollos y
-    aplicaciones de producción.
+    durante más de una década, la adopción se orientó progresivamente hacia
+    ROS~2: hacia septiembre de 2024, ROS~2 ya representaba casi el 80\% de
+    las descargas totales de ROS. La finalización del soporte de ROS~1 en
+    2025 consolidó esta tendencia.
 \end{itemize}
 
-La adopción industrial se apoya en iniciativas que construyen sobre ROS~2,
-como el consorcio ROS-Industrial, orientado a la automatización de
+La adopción industrial se apoya en iniciativas como el consorcio
+ROS-Industrial, orientado a extender ROS para la automatización de la
 manufactura, y Autoware, una plataforma de código abierto para la conducción
-autónoma. Asimismo, en 2024 se constituyó la Open Source Robotics Alliance
-(OSRA), bajo la órbita de la OSRF, con el objetivo de dar un marco de
-gobernanza y financiamiento sostenido al proyecto con participación de
-empresas del sector.
+autónoma construida sobre ROS~2. Asimismo, la constitución de la OSRA en 2024 incorporó un modelo de membresía
+que suma la participación y el financiamiento de empresas del sector, como
+NVIDIA, Intrinsic y Qualcomm.
 
 En Argentina, el uso de ROS se concentra principalmente en el ámbito
 académico, en universidades y grupos de investigación en robótica,
@@ -147,13 +153,16 @@ En el contexto internacional, la Unión Europea constituye la principal
 referencia regulatoria:
 \begin{itemize}
     \item \textbf{Reglamento (UE) 2023/1230 relativo a las máquinas:} reemplaza
-    a la Directiva 2006/42/CE y será de aplicación a partir de enero de 2027.
+    a la Directiva 2006/42/CE y será de aplicación a partir del 20 de enero
+    de 2027.
     Incorpora requisitos sobre el software que cumple funciones de seguridad y
     sobre la protección frente a ciberataques que puedan comprometer la
     operación segura de la máquina.
     \item \textbf{Reglamento (UE) 2024/2847 de Ciberresiliencia:} establece
-    requisitos de ciberseguridad para productos con elementos digitales, lo
-    que alcanza a los robots conectados en red. Prevé un régimen diferenciado
+    requisitos de ciberseguridad para productos con elementos digitales. Entró
+    en vigor en diciembre de 2024 y será plenamente aplicable a partir del 11
+    de diciembre de 2027. Su alcance
+    comprende a los robots conectados en red. Prevé un régimen diferenciado
     para el software de código abierto desarrollado sin fines comerciales.
     \item \textbf{Reglamento (UE) 2024/1689 de Inteligencia Artificial:}
     resulta aplicable a los sistemas robóticos que incorporan componentes de
@@ -163,14 +172,15 @@ referencia regulatoria:
 En Argentina no existe una legislación específica sobre robótica. Los
 sistemas robóticos quedan alcanzados por normas de carácter general:
 \begin{itemize}
-    \item \textbf{Ley 19.587 de Higiene y Seguridad en el Trabajo} y su
+    \item \textbf{Ley 19.587 de Higiene y Seguridad en el Trabajo} (1972) y su
     decreto reglamentario 351/79, aplicables a la incorporación de robots en
     entornos laborales.
-    \item \textbf{Ley 25.326 de Protección de los Datos Personales},
+    \item \textbf{Ley 25.326 de Protección de los Datos Personales} (2000),
     aplicable cuando los robots capturan y transmiten información que permite
     identificar a personas, como imágenes o audio.
     \item \textbf{Ley 11.723 de Propiedad Intelectual}, que comprende al
-    software tras la modificación introducida por la Ley 25.036, y que da el
+    software tras la modificación introducida por la Ley 25.036 (1998), y que
+    da el
     marco legal a las licencias de código abierto bajo las que se distribuye
     ROS.
 \end{itemize}
