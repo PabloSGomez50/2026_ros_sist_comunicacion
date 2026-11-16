@@ -191,9 +191,12 @@ de \textit{service} constituye un perfil de QoS. Las políticas disponibles son:
     \item \textbf{\textit{Reliability}:} \textit{best effort} intenta entregar
     las muestras, pero admite pérdidas; \textit{reliable} garantiza la entrega
     mediante retransmisiones.
-    \item \textbf{\textit{Durability}:} con \textit{transient local}, el
-    publicador conserva las muestras para entregarlas a suscriptores que se
-    incorporen tardíamente; con \textit{volatile}, no se conservan.
+    \item \textbf{\textit{Durability}:} 
+    \begin{itemize}
+        \item \textit{Transient local}: el publicador conserva las muestras para entregarlas a suscriptores que se
+    incorporen tardíamente.
+        \item \textit{Volatile}: el publicador no conserva las muestras.
+    \end{itemize}
     \item \textbf{\textit{Deadline}:} intervalo máximo esperado entre mensajes
     consecutivos.
     \item \textbf{\textit{Lifespan}:} tiempo máximo entre la publicación y la

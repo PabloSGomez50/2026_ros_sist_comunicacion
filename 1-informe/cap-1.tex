@@ -11,17 +11,16 @@ Sensores, actuadores, unidades de procesamiento y estaciones de supervisión
 operan como procesos independientes, frecuentemente alojados en distintos
 equipos, que deben intercambiar datos de manera continua a través de una red.
 En este contexto, la arquitectura de comunicaciones deja de ser un aspecto
-secundario y pasa a condicionar directamente la latencia, la confiabilidad y la
-escalabilidad del sistema en su conjunto.
+secundario y pasa a condicionar directamente la \textbf{latencia}, la \textbf{confiabilidad} y la
+\textbf{escalabilidad} del sistema en su conjunto.
 
 ROS constituye uno de los \textit{frameworks} de código abierto más difundidos
 para el desarrollo de software robótico, tanto en el ámbito académico como en
 el industrial. Su evolución resulta particularmente relevante para el estudio de
 las comunicaciones: la primera versión (ROS~1) se basa en una arquitectura
 híbrida que depende de un proceso maestro central, mientras que ROS~2 adopta un
-esquema descentralizado sustentado en el estándar DDS (\textit{Data
-Distribution Service}) y en el protocolo RTPS (\textit{Real-Time
-Publish-Subscribe}), que opera habitualmente sobre UDP/IP. Este trabajo aborda dicha transición, analizando
+esquema descentralizado sustentado en el estándar DDS y en el protocolo RTPS,
+que opera habitualmente sobre UDP/IP. Este trabajo aborda dicha transición, analizando
 sus fundamentos técnicos, la configuración de la calidad de servicio (QoS) y
 las implementaciones de \textit{middleware} disponibles.
 
@@ -70,18 +69,18 @@ hardware dedicado.
 Las fuentes consultadas se agrupan en las siguientes categorías:
 \begin{itemize}
     \item \textbf{Documentación oficial de ROS:}
-    \href{https://docs.ros.org}{documentación de ROS~2} y
+    \href{https://docs.ros.org}{documentación de ROS 2} y
     \href{https://www.ros.org/reps/rep-0000.html}{propuestas de mejora} (REP,
     \textit{ROS Enhancement Proposals}), en particular la
-    \href{https://www.ros.org/reps/rep-2000.html}{REP~2000}, que define las
+    \href{https://www.ros.org/reps/rep-2000.html}{REP 2000}, que define las
     plataformas soportadas por cada distribución.
     \item \textbf{Especificaciones de estándares:} especificaciones de la OMG
     (\textit{Object Management Group}) para
     \href{https://www.omg.org/spec/DDS/}{DDS} y
     \href{https://www.omg.org/spec/DDSI-RTPS/}{DDSI-RTPS}, y documentos RFC de
     la IETF para los protocolos
-    \href{https://www.rfc-editor.org/rfc/rfc768}{UDP (RFC~768)} e
-    \href{https://www.rfc-editor.org/rfc/rfc791}{IPv4 (RFC~791)}.
+    \href{https://www.rfc-editor.org/rfc/rfc768}{UDP (RFC 768)} e
+    \href{https://www.rfc-editor.org/rfc/rfc791}{IPv4 (RFC 791)}.
     \item \textbf{Documentación de fabricantes:} documentación técnica de las
     implementaciones \href{https://cyclonedds.io}{Eclipse Cyclone DDS},
     \href{https://fast-dds.docs.eprosima.com}{eProsima Fast DDS} y
@@ -113,5 +112,4 @@ ROS~1 en adopción y este último alcanza el fin de su soporte con la
 distribución Noetic, en mayo de 2025.
 
 En el plano espacial, el análisis tiene alcance global, dado que ROS y los
-estándares asociados son desarrollados y adoptados a nivel internacional. Se
-incorporan referencias al contexto argentino cuando resultan pertinentes.
+estándares asociados son desarrollados y adoptados a nivel internacional.

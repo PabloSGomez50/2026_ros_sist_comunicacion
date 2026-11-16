@@ -1,0 +1,45 @@
+
+\subsection{Conclusiones}
+
+El análisis realizado permite caracterizar la evolución de ROS como una
+transición desde una arquitectura de comunicaciones propia y parcialmente
+centralizada hacia una arquitectura distribuida sustentada en estándares
+industriales. En ROS~1, el proceso maestro concentra el registro y la
+resolución de nombres, lo que lo convierte en un punto único de falla y
+condiciona el despliegue en redes extensas o poco confiables. ROS~2 elimina
+esta dependencia mediante el descubrimiento distribuido que provee RTPS.
+
+La adopción de DDS y RTPS inscribe a ROS~2 en un marco normativo consolidado,
+definido por la OMG en las capas de \textit{middleware} e interoperabilidad y
+por la IETF en las capas de transporte y red. Esta organización en capas
+asigna a cada nivel una función definida: DDS establece el modelo de datos,
+RTPS el protocolo de interoperabilidad, UDP el transporte e IP el
+encaminamiento. La elección de UDP como transporte resulta coherente con este
+diseño, dado que habilita el descubrimiento mediante \textit{multicast} y
+traslada a RTPS la implementación de la confiabilidad, que se aplica solo
+cuando la política de calidad de servicio lo requiere.
+
+Desde la perspectiva de los sistemas de comunicaciones, las políticas de QoS
+constituyen el aporte más significativo de ROS~2, ya que permiten adecuar el
+comportamiento de cada flujo de datos a las características del enlace y de la
+aplicación, por ejemplo, priorizando la actualidad de los datos de sensores
+sobre la garantía de entrega. Como contrapartida, incorporan un factor de
+complejidad en el diseño: los perfiles incompatibles impiden establecer la
+comunicación, por lo que su configuración debe definirse de manera coherente
+en todo el sistema.
+
+La capa de abstracción RMW desacopla las aplicaciones de la implementación del
+\textit{middleware} y habilita la coexistencia de múltiples proveedores con
+modelos de licenciamiento diferenciados. La incorporación de Zenoh como
+implementación de primer nivel demuestra que esta abstracción admite incluso
+alternativas no basadas en DDS, orientadas a escenarios en los que el
+descubrimiento mediante \textit{multicast} presenta limitaciones, como las
+redes inalámbricas.
+
+Por último, ROS~2 amplía su alcance hacia sistemas con requisitos de tiempo
+real, mediante el soporte de núcleos Linux con PREEMPT\_RT, y hacia
+microcontroladores, mediante micro-ROS y el estándar DDS-XRCE. No obstante, el
+determinismo temporal depende del conjunto de la pila de ejecución y no
+únicamente del \textit{middleware}. Asimismo, la vinculación de cada
+distribución con una versión LTS de Ubuntu constituye un factor a considerar
+en la planificación del ciclo de vida de los sistemas desplegados.
